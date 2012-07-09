@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">FreeHAL</string>
+    <string name="title_conversation_detail">Gespräch</string>
+    <string name="title_conversation_list">FreeHAL - die künstliche Intelligenz</string>
+    <string name="hint_message">Bitte gib einen Satz ein&#8230;</string>
+    <string name="button_send">Senden</string>
+    <string name="comment_conversation_online">Für die Online-Version wird eine funktionierende Internetverbindung benötigt.</string>
+    <string name="comment_conversation_offline">Die Offline-Version funktioniert nur auf gerooteten Android-Geräten mit ARM-Prozessor.</string>
+    <string name="person_user">Benutzer</string>
+    <string name="person_freehal">FreeHAL</string>
+    <string name="tab_online_talk">Online-Version</string>
+    <string name="tab_offline_talk">Offline-Version</string>
+    <string name="tab_settings">Einstellungen</string>
+
+</resources>
