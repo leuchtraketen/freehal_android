@@ -1,11 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.freehal.app"
-    android:versionCode="3"
-    android:versionName="0.1.3" >
+    android:versionCode="4"
+    android:versionName="0.1.4" >
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -22,14 +24,12 @@
         </activity>
         <activity
             android:name=".DetailActivity"
-            android:label="@string/title_conversation_detail" >
+            android:label="@string/title_detail" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".OverviewActivity" />
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET"/>
     
 </manifest>
 

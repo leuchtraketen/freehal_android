@@ -8,12 +8,12 @@
     tools:context=".OverviewActivity">
 
     <fragment android:name="net.freehal.app.OverviewFragment"
-        android:id="@+id/conversation_list"
+        android:id="@+id/list"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
-    <FrameLayout android:id="@+id/conversation_detail_container"
+    <FrameLayout android:id="@+id/detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3" />

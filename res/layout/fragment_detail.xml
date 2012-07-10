@@ -8,7 +8,7 @@
     tools:context=".DetailFragment" >
 
     <ScrollView
-        android:id="@+id/conversation_scrollview"
+        android:id="@+id/scrollview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1.0"
@@ -16,7 +16,7 @@
         android:scrollbars="vertical" >
 
         <TextView
-            android:id="@+id/conversation_detail"
+            android:id="@+id/detail"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

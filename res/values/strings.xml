@@ -1,12 +1,12 @@
 <resources>
 
     <string name="app_name">FreeHAL</string>
-    <string name="title_conversation_detail">Conversation</string>
-    <string name="title_conversation_list">FreeHAL - the artificial intelligence</string>
+    <string name="title_detail">Conversation</string>
+    <string name="title_list">FreeHAL - the artificial intelligence</string>
     <string name="hint_message">Please type a sentence&#8230;</string>
     <string name="button_send">Send</string>
-    <string name="comment_conversation_online">You need an internet connection to use the online version.</string>
-    <string name="comment_conversation_offline">The offline version only works on rooted Android devices.</string>
+    <string name="comment_online">You need an internet connection to use the online version.</string>
+    <string name="comment_offline">The offline version only works on rooted Android devices.</string>
     <string name="person_user">You</string>
     <string name="person_freehal">FreeHAL</string>
     <string name="tab_online_talk">Online Version</string>

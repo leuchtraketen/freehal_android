@@ -1,5 +1,6 @@
 package net.freehal.app;
 
+import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.SpeechHelper;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,15 +15,16 @@ public class OverviewActivity extends SherlockFragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation_list);
+        setContentView(R.layout.activity_list);
 
-        if (findViewById(R.id.conversation_detail_container) != null) {
+        if (findViewById(R.id.detail_container) != null) {
             mTwoPane = true;
             ((OverviewFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.conversation_list))
+                    .findFragmentById(R.id.list))
                     .setActivateOnItemClick(true);
-            onItemSelected("1");
+            onItemSelected("online");
         }
+        SelectContent.init(this.getResources());
         
         SpeechHelper.getInstance().start(this);
     }
@@ -32,7 +34,7 @@ public class OverviewActivity extends SherlockFragmentActivity
         if (mTwoPane) {
             DetailFragment fragment = DetailFragment.forTab(id, this);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.conversation_detail_container, fragment)
+                    .replace(R.id.detail_container, fragment)
                     .commit();
 
         } else {

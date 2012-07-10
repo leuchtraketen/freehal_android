@@ -1,5 +1,6 @@
 package net.freehal.app;
 
+import net.freehal.app.select.SelectContent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -11,19 +12,21 @@ public class DetailActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(null);
 		setContentView(R.layout.activity_detail);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		if (savedInstanceState == null) {
-			final String id = getIntent().getStringExtra(
-					DetailFragment.ARG_ITEM_ID);
-			DetailFragment fragment = DetailFragment.forTab(id, this);
+		// if (savedInstanceState == null) {
+		final String id = SelectContent.validateId(getIntent().getStringExtra(
+				DetailFragment.ARG_ITEM_ID));
 
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.conversation_detail_container, fragment).commit();
-		}
+		this.setTitle(SelectContent.ITEM_MAP.get(id).title);
+		DetailFragment fragment = DetailFragment.forTab(id, this);
+
+		getSupportFragmentManager().beginTransaction()
+				.add(R.id.detail_container, fragment).commit();
+		// }
 	}
 
 	@Override

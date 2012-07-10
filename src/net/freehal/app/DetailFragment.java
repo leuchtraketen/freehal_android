@@ -5,14 +5,18 @@ import java.util.HashMap;
 import net.freehal.app.impl.FreehalImpl;
 import net.freehal.app.impl.FreehalImplOffline;
 import net.freehal.app.impl.FreehalImplOnline;
+import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.ExecuteLater;
 import net.freehal.app.util.SpeechHelper;
 import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,16 +36,17 @@ public class DetailFragment extends SherlockFragment {
 	public static String ARG_ITEM_ID = "item_id";
 
 	private String tab;
-	public static HashMap<String, DetailFragment> instances;
 	private Activity activity;
 	private History history;
-	private FreehalImpl onlineImpl;
-	private FreehalImpl offlineImpl;
+
+	private static FreehalImpl onlineImpl;
+	private static FreehalImpl offlineImpl;
 	private static String log;
 	private static String graph;
 
+	private static HashMap<String, DetailFragment> tabs;
 	static {
-		instances = new HashMap<String, DetailFragment>();
+		tabs = new HashMap<String, DetailFragment>();
 	}
 
 	/**
@@ -55,16 +60,21 @@ public class DetailFragment extends SherlockFragment {
 	 * @return the singleton instance
 	 */
 	public static DetailFragment forTab(String id, Activity activity) {
-		if (!instances.containsKey(id)) {
+		Log.e("forTab", "id="+id);
+		id = SelectContent.validateId(id);
+		Log.e("forTab", "(id="+id+")");
+		if (!tabs.containsKey(id)) {
+			Log.e("forTab", "not cached.");
 			DetailFragment instance = new DetailFragment();
 			instance.setTab(id);
 			Bundle arguments = new Bundle();
 			arguments.putString(DetailFragment.ARG_ITEM_ID, id);
 			instance.setActivity(activity);
 			instance.setArguments(arguments);
-			instances.put(id, instance);
+			tabs.put(id, instance);
 		}
-		return instances.get(id);
+		Log.e("forTab", "(tabs.get(id).id="+tabs.get(id).getTab()+")");
+		return tabs.get(id);
 	}
 
 	public String getTab() {
@@ -77,7 +87,7 @@ public class DetailFragment extends SherlockFragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+		super.onCreate(null);
 	}
 
 	public String getOutput(final String input, final FreehalImpl impl) {
@@ -133,24 +143,24 @@ public class DetailFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		final String item = getArguments().getString(ARG_ITEM_ID);
 
 		final View rootView;
-		if (item == "1" || item == "2") {
+		if (tab.equals("online") || tab.equals("offline")) {
 			rootView = onCreateViewConversation(inflater, container,
-					savedInstanceState, item);
-		} else if (item == "3") {
+					savedInstanceState, tab);
+		} else if (tab.equals("log")) {
 			rootView = onCreateViewLog(inflater, container, savedInstanceState,
-					item);
-		} else if (item == "4") {
+					tab);
+		} else if (tab.equals("graph")) {
 			rootView = onCreateViewGraph(inflater, container,
-					savedInstanceState, item);
-		} else if (item == "5") {
+					savedInstanceState, tab);
+		} else if (tab.equals("settings")) {
 			rootView = onCreateViewSettings(inflater, container,
-					savedInstanceState, item);
+					savedInstanceState, tab);
 		} else {
-			rootView = onCreateViewConversation(inflater, container,
-					savedInstanceState, "1");
+			Log.e("onCreateView", "unknown tab: " + tab);
+			rootView = onCreateViewSettings(inflater, container,
+					savedInstanceState, "offline");
 		}
 
 		return rootView;
@@ -159,14 +169,13 @@ public class DetailFragment extends SherlockFragment {
 	public View onCreateViewConversation(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState, final String item) {
 
-		final View rootView = inflater.inflate(
-				R.layout.fragment_conversation_detail, container, false);
-		final TextView text = (TextView) rootView
-				.findViewById(R.id.conversation_detail);
+		final View rootView = inflater.inflate(R.layout.fragment_detail,
+				container, false);
+		final TextView text = (TextView) rootView.findViewById(R.id.detail);
 		final EditText edit = (EditText) rootView
 				.findViewById(R.id.edit_message);
 		final ScrollView scrollView = (ScrollView) rootView
-				.findViewById(R.id.conversation_scrollview);
+				.findViewById(R.id.scrollview);
 		final Button sendButton = (Button) rootView
 				.findViewById(R.id.button_send);
 
@@ -223,10 +232,10 @@ public class DetailFragment extends SherlockFragment {
 
 	private History createHistory(View rootView, String item) {
 		History hist = new History(rootView.getContext(), item);
-		if (item == "1") {
-			hist.setAlternateText(R.string.comment_conversation_online);
-		} else if (item == "2") {
-			hist.setAlternateText(R.string.comment_conversation_offline);
+		if (item.equals("online")) {
+			hist.setAlternateText(R.string.comment_online);
+		} else if (item.equals("offline")) {
+			hist.setAlternateText(R.string.comment_offline);
 		}
 		return hist;
 	}
@@ -234,16 +243,16 @@ public class DetailFragment extends SherlockFragment {
 	private FreehalImpl chooseFreehalImpl(String item) {
 
 		final FreehalImpl impl;
-		if (item == "1") {
+		if (item.equals("online")) {
 			if (onlineImpl == null)
 				onlineImpl = new FreehalImplOnline(this.getResources());
 			impl = onlineImpl;
-			history.setAlternateText(R.string.comment_conversation_online);
-		} else if (item == "2") {
+			history.setAlternateText(R.string.comment_online);
+		} else if (item.equals("offline")) {
 			if (offlineImpl == null)
 				offlineImpl = new FreehalImplOffline(this.getResources());
 			impl = offlineImpl;
-			history.setAlternateText(R.string.comment_conversation_offline);
+			history.setAlternateText(R.string.comment_offline);
 		} else {
 			impl = null;
 		}
@@ -267,11 +276,14 @@ public class DetailFragment extends SherlockFragment {
 				container, false);
 		// ((TextView)
 		// rootView.findViewById(R.id.log_heading)).setText(R.string.tab_log);
+
+		TextView view = (TextView) rootView.findViewById(R.id.log_detail);
 		if (log == null || log.length() == 0)
-			((TextView) rootView.findViewById(R.id.log_detail))
-					.setText(R.string.no_log);
+			view.setText(Html.fromHtml(getResources()
+					.getString(R.string.no_log)));
 		else
-			((TextView) rootView.findViewById(R.id.log_detail)).setText(log);
+			view.setText(log);
+		view.setTypeface(Typeface.MONOSPACE);
 
 		return rootView;
 	}
@@ -283,12 +295,13 @@ public class DetailFragment extends SherlockFragment {
 				container, false);
 
 		WebView view = (WebView) rootView.findViewById(R.id.graph_detail);
-		if (graph == null || graph.length() < 200)
+		if (graph == null || graph.length() < 1000)
 			view.loadData(getResources().getString(R.string.no_graph),
 					"text/html", null);
 		else
 			view.loadData(graph, "text/html", null);
 		view.getSettings().setSupportZoom(true);
+		view.getSettings().setBuiltInZoomControls(true);
 
 		return rootView;
 	}
