@@ -816,17 +816,17 @@ containing a value of this type.
         public static final int abs__titleDivider=0x7f04001c;
         public static final int abs__up=0x7f04000b;
         public static final int button_send=0x7f04002c;
-        public static final int conversation_detail=0x7f04002a;
-        public static final int conversation_detail_container=0x7f040027;
-        public static final int conversation_list=0x7f040028;
-        public static final int conversation_scrollview=0x7f040029;
+        public static final int detail=0x7f04002a;
+        public static final int detail_container=0x7f040027;
         public static final int disableHome=0x7f040009;
         public static final int edit_message=0x7f04002b;
         public static final int graph_detail=0x7f04002d;
         public static final int homeAsUp=0x7f040006;
+        public static final int list=0x7f040028;
         public static final int listMode=0x7f040002;
         public static final int log_detail=0x7f04002e;
         public static final int normal=0x7f040001;
+        public static final int scrollview=0x7f040029;
         public static final int settings_detail=0x7f04002f;
         public static final int showCustom=0x7f040008;
         public static final int showHome=0x7f040005;
@@ -859,11 +859,10 @@ containing a value of this type.
         public static final int abs__screen_action_bar_overlay=0x7f030011;
         public static final int abs__screen_simple=0x7f030012;
         public static final int abs__screen_simple_overlay_action_mode=0x7f030013;
-        public static final int activity_conversation_list=0x7f03001d;
         public static final int activity_detail=0x7f030014;
         public static final int activity_list=0x7f030015;
         public static final int activity_twopane=0x7f030016;
-        public static final int fragment_conversation_detail=0x7f030017;
+        public static final int fragment_detail=0x7f030017;
         public static final int fragment_graph_detail=0x7f030018;
         public static final int fragment_log_detail=0x7f030019;
         public static final int fragment_settings_detail=0x7f03001a;
@@ -903,8 +902,8 @@ containing a value of this type.
         public static final int abs__shareactionprovider_share_with_application=0x7f090009;
         public static final int app_name=0x7f09000a;
         public static final int button_send=0x7f09000e;
-        public static final int comment_conversation_offline=0x7f090010;
-        public static final int comment_conversation_online=0x7f09000f;
+        public static final int comment_offline=0x7f090010;
+        public static final int comment_online=0x7f09000f;
         public static final int hint_message=0x7f09000d;
         public static final int no_graph=0x7f09001b;
         public static final int no_log=0x7f09001a;
@@ -917,8 +916,8 @@ containing a value of this type.
         public static final int tab_offline_talk=0x7f090014;
         public static final int tab_online_talk=0x7f090013;
         public static final int tab_settings=0x7f090017;
-        public static final int title_conversation_detail=0x7f09000b;
-        public static final int title_conversation_list=0x7f09000c;
+        public static final int title_detail=0x7f09000b;
+        public static final int title_list=0x7f09000c;
     }
     public static final class style {
         public static final int AppTheme=0x7f0a0058;
