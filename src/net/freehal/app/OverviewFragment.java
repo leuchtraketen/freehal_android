@@ -1,16 +1,15 @@
 package net.freehal.app;
 
 import net.freehal.app.select.SelectContent;
-
-import android.R;
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class OverviewFragment extends ListFragment {
+import com.actionbarsherlock.app.SherlockListFragment;
+
+public class OverviewFragment extends SherlockListFragment {
 
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
 
@@ -41,8 +40,8 @@ public class OverviewFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
         SelectContent.init(view);
         setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(getActivity(),
-                R.layout.simple_list_item_activated_1,
-                R.id.text1,
+                android.R.layout.simple_list_item_activated_1,
+                android.R.id.text1,
                 SelectContent.ITEMS));
         if (savedInstanceState != null && savedInstanceState
                 .containsKey(STATE_ACTIVATED_POSITION)) {

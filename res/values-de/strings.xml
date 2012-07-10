@@ -11,8 +11,12 @@
     <string name="person_freehal">FreeHAL</string>
     <string name="tab_online_talk">Online-Version</string>
     <string name="tab_offline_talk">Offline-Version</string>
+    <string name="tab_log">Log File</string>
+    <string name="tab_graph">Syntaxbaum</string>
     <string name="tab_settings">Einstellungen</string>
     <string name="no_output">&lt;i&gt;(Keine Antwort)&lt;/i&gt;</string>
     <string name="not_implemented">&lt;i&gt;(noch nicht implementiert)&lt;/i&gt;</string>
+    <string name="no_log">Keine Log-Datei verf&uuml;gbar.</string>
+    <string name="no_graph">Kein Syntaxbaum verf&uuml;gbar.</string>
 
 </resources>

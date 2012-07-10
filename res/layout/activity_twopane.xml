@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    android:divider="?android:attr/dividerHorizontal"
-    android:showDividers="middle"
     tools:context=".OverviewActivity">
 
     <fragment android:name="net.freehal.app.OverviewFragment"

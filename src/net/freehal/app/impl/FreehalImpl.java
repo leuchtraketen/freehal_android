@@ -2,6 +2,10 @@ package net.freehal.app.impl;
 
 public abstract class FreehalImpl {
 
-	public abstract String getOutput(String input);
+	public abstract void setInput(String input);
+	public abstract String getOutput();
+	public abstract String getLog();
+	public abstract String getGraph();
+	public abstract void compute();
 
 }

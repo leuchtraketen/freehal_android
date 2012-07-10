@@ -2,39 +2,78 @@ package net.freehal.app.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Random;
 
 import android.content.res.Resources;
 
 import net.freehal.app.util.HttpUtil;
 
 public class FreehalImplOnline extends FreehalImpl {
-	
+
 	@SuppressWarnings("unused")
 	private final Resources resources;
+	private String input;
+	private String output;
+	private String log;
+	private String graph;
 
 	public FreehalImplOnline(Resources resources) {
 		this.resources = resources;
 	}
 
 	@Override
-	public String getOutput(String input) {
-		String url = "https://www.tobias-schulz.eu/demo-api?q=";
+	public void setInput(String input) {
+		this.input = input;
+	}
+
+	@Override
+	public void compute() {
+		Random generator = new Random();
+		long random = generator.nextLong();
+		while (random < Math.pow(10, 8))
+			random *= generator.nextLong();
+
+		String url = "https://www.tobias-schulz.eu/demo-api?sep=" + random;
 		try {
-			url += URLEncoder.encode(input, "UTF-8");
+			url += "&q=" + URLEncoder.encode(input, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 
+		output = null;
+		log = "";
+		graph = "";
 		try {
-			final String output = HttpUtil.executeHttpGet(url).trim();
+			output = HttpUtil.executeHttpGet(url).trim();
 			if (output.length() > 0) {
-				return output;
-			} else {
-				return null;
+				String[] splitted = output.split(String.valueOf(random), 3);
+				output = splitted[0].trim();
+				if (splitted.length > 1)
+					log = splitted[1].trim();
+				if (splitted.length > 2)
+					graph = splitted[2].trim();
+				System.out.println("log=" + log);
+				System.out.println("graph=" + graph);
+				System.out.println("splitted.length=" + splitted.length);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "Error! " + e.getMessage();
+			output = "Error! " + e.getMessage();
 		}
+	}
+
+	@Override
+	public String getOutput() {
+		return output;
+	}
+
+	@Override
+	public String getGraph() {
+		return graph;
+	}
+
+	@Override
+	public String getLog() {
+		return log;
 	}
 }

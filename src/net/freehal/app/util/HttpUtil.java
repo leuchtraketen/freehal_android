@@ -58,7 +58,6 @@ public class HttpUtil {
 			}
 			in.close();
 			page = sb.toString();
-			System.out.println(page);
 		} finally {
 			if (in != null) {
 				try {

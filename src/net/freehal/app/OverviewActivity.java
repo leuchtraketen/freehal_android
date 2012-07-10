@@ -1,10 +1,12 @@
 package net.freehal.app;
 
+import net.freehal.app.util.SpeechHelper;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
-public class OverviewActivity extends FragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public class OverviewActivity extends SherlockFragmentActivity
         implements OverviewFragment.Callbacks {
 
     private boolean mTwoPane;
@@ -19,17 +21,16 @@ public class OverviewActivity extends FragmentActivity
             ((OverviewFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.conversation_list))
                     .setActivateOnItemClick(true);
+            onItemSelected("1");
         }
+        
+        SpeechHelper.getInstance().start(this);
     }
 
     @Override
     public void onItemSelected(String id) {
         if (mTwoPane) {
-            Bundle arguments = new Bundle();
-            arguments.putString(DetailFragment.ARG_ITEM_ID, id);
-            DetailFragment fragment = new DetailFragment();
-            fragment.setActivity(this);
-            fragment.setArguments(arguments);
+            DetailFragment fragment = DetailFragment.forTab(id, this);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.conversation_detail_container, fragment)
                     .commit();

@@ -1,59 +1,91 @@
 package net.freehal.app;
 
-import java.util.Locale;
+import java.util.HashMap;
 
 import net.freehal.app.impl.FreehalImpl;
 import net.freehal.app.impl.FreehalImplOffline;
 import net.freehal.app.impl.FreehalImplOnline;
 import net.freehal.app.util.ExecuteLater;
+import net.freehal.app.util.SpeechHelper;
+import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
-import android.support.v4.app.Fragment;
-import android.text.Html;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragment;
+
 @SuppressLint("ValidFragment")
-public class DetailFragment extends Fragment implements OnInitListener {
+public class DetailFragment extends SherlockFragment {
 
 	public static String ARG_ITEM_ID = "item_id";
 
+	private String tab;
+	public static HashMap<String, DetailFragment> instances;
 	private Activity activity;
-	private TextToSpeech tts;
 	private History history;
 	private FreehalImpl onlineImpl;
 	private FreehalImpl offlineImpl;
+	private static String log;
+	private static String graph;
+
+	static {
+		instances = new HashMap<String, DetailFragment>();
+	}
+
+	/**
+	 * Singleton!
+	 * 
+	 * @param id
+	 *            the id of the tab
+	 * @param activity
+	 *            the activity (OverviewActivity for tablets or DetailActivity
+	 *            for phones)
+	 * @return the singleton instance
+	 */
+	public static DetailFragment forTab(String id, Activity activity) {
+		if (!instances.containsKey(id)) {
+			DetailFragment instance = new DetailFragment();
+			instance.setTab(id);
+			Bundle arguments = new Bundle();
+			arguments.putString(DetailFragment.ARG_ITEM_ID, id);
+			instance.setActivity(activity);
+			instance.setArguments(arguments);
+			instances.put(id, instance);
+		}
+		return instances.get(id);
+	}
+
+	public String getTab() {
+		return tab;
+	}
+
+	public void setTab(String tab) {
+		this.tab = tab;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override
-	public void onDestroy() {
-		// Don't forget to shutdown tts!
-		if (tts != null) {
-			tts.stop();
-			tts.shutdown();
-		}
-		super.onDestroy();
-	}
-
 	public String getOutput(final String input, final FreehalImpl impl) {
-		return impl.getOutput(input);
+		impl.setInput(input);
+		impl.compute();
+		log = impl.getLog();
+		graph = impl.getGraph();
+		return impl.getOutput();
 	}
 
 	public void gotInput(final EditText edit, final TextView text,
@@ -62,25 +94,23 @@ public class DetailFragment extends Fragment implements OnInitListener {
 		if (history == null)
 			return;
 
-		final String input = edit.getText().toString();
+		final String input = Util.toAscii(edit.getText().toString());
 
 		if (input.length() > 0) {
 			history.addInput(input);
 			history.writeTo(text, scrollView);
 			edit.setText("");
 
-			final DetailFragment frag = this;
+			final String noOutput = getResources()
+					.getString(R.string.no_output);
 			AsyncTask<String, Void, String> async = new AsyncTask<String, Void, String>() {
 
 				@Override
 				protected String doInBackground(String... arg0) {
 					System.out.println("input: " + input);
 					String output = getOutput(input, impl);
-					if (frag.isAdded() && frag.isVisible()) {
-						if (output == null)
-							output = getResources().getString(
-									R.string.no_output);
-					}
+					if (output == null)
+						output = noOutput;
 					System.out.println("output: " + input);
 					return output;
 				}
@@ -88,12 +118,10 @@ public class DetailFragment extends Fragment implements OnInitListener {
 				@Override
 				protected void onPostExecute(String output) {
 					history.addOutput(output);
-					if (frag.isAdded() && frag.isVisible()) {
-						history.writeTo(text, scrollView);
-						tts.speak(Html.fromHtml(output).toString(),
-								TextToSpeech.QUEUE_FLUSH, null);
-						showKeyboard(edit, scrollView, 1000);
-					}
+					// if (frag.isAdded() && frag.isVisible()) {
+					history.writeTo(text, scrollView);
+					SpeechHelper.getInstance().say(output, activity);
+					showKeyboard(edit, scrollView, 1000);
 				}
 
 			};
@@ -107,16 +135,25 @@ public class DetailFragment extends Fragment implements OnInitListener {
 			Bundle savedInstanceState) {
 		final String item = getArguments().getString(ARG_ITEM_ID);
 
+		final View rootView;
 		if (item == "1" || item == "2") {
-			return onCreateViewConversation(inflater, container,
+			rootView = onCreateViewConversation(inflater, container,
 					savedInstanceState, item);
 		} else if (item == "3") {
-			return onCreateViewSettings(inflater, container,
+			rootView = onCreateViewLog(inflater, container, savedInstanceState,
+					item);
+		} else if (item == "4") {
+			rootView = onCreateViewGraph(inflater, container,
+					savedInstanceState, item);
+		} else if (item == "5") {
+			rootView = onCreateViewSettings(inflater, container,
 					savedInstanceState, item);
 		} else {
-			return onCreateViewConversation(inflater, container,
+			rootView = onCreateViewConversation(inflater, container,
 					savedInstanceState, "1");
 		}
+
+		return rootView;
 	}
 
 	public View onCreateViewConversation(LayoutInflater inflater,
@@ -133,7 +170,6 @@ public class DetailFragment extends Fragment implements OnInitListener {
 		final Button sendButton = (Button) rootView
 				.findViewById(R.id.button_send);
 
-		tts = new TextToSpeech(rootView.getContext(), this);
 		history = createHistory(rootView, item);
 		final FreehalImpl impl = chooseFreehalImpl(item);
 
@@ -224,18 +260,37 @@ public class DetailFragment extends Fragment implements OnInitListener {
 		return rootView;
 	}
 
-	@Override
-	public void onInit(int status) {
-		if (status == TextToSpeech.SUCCESS) {
-			int result = tts.setLanguage(Locale.GERMANY);
+	public View onCreateViewLog(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState, final String item) {
 
-			if (result == TextToSpeech.LANG_MISSING_DATA
-					|| result == TextToSpeech.LANG_NOT_SUPPORTED) {
-				Log.e("TTS", "This Language is not supported");
-			}
-		} else {
-			Log.e("TTS", "Initilization Failed!");
-		}
+		View rootView = inflater.inflate(R.layout.fragment_log_detail,
+				container, false);
+		// ((TextView)
+		// rootView.findViewById(R.id.log_heading)).setText(R.string.tab_log);
+		if (log == null || log.length() == 0)
+			((TextView) rootView.findViewById(R.id.log_detail))
+					.setText(R.string.no_log);
+		else
+			((TextView) rootView.findViewById(R.id.log_detail)).setText(log);
+
+		return rootView;
+	}
+
+	public View onCreateViewGraph(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState, final String item) {
+
+		View rootView = inflater.inflate(R.layout.fragment_graph_detail,
+				container, false);
+
+		WebView view = (WebView) rootView.findViewById(R.id.graph_detail);
+		if (graph == null || graph.length() < 200)
+			view.loadData(getResources().getString(R.string.no_graph),
+					"text/html", null);
+		else
+			view.loadData(graph, "text/html", null);
+		view.getSettings().setSupportZoom(true);
+
+		return rootView;
 	}
 
 	public void setActivity(Activity activity) {

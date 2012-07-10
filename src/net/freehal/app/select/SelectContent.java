@@ -38,6 +38,10 @@ public class SelectContent {
 		addItem(new DummyItem("2", view.getResources().getString(
 				R.string.tab_offline_talk)));
 		addItem(new DummyItem("3", view.getResources().getString(
+				R.string.tab_log)));
+		addItem(new DummyItem("4", view.getResources().getString(
+				R.string.tab_graph)));
+		addItem(new DummyItem("5", view.getResources().getString(
 				R.string.tab_settings)));
 	}
 
