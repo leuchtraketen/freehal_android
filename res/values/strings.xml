@@ -12,6 +12,7 @@
     <string name="tab_online_talk">Online Version</string>
     <string name="tab_offline_talk">Offline Version</string>
     <string name="tab_settings">Settings</string>
-    
-    
+    <string name="no_output">&lt;i&gt;(no answer)&lt;/i&gt;</string>
+    <string name="not_implemented">&lt;i&gt;(not yet implemented)&lt;/i&gt;</string>
+
 </resources>

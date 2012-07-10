@@ -31,6 +31,8 @@ public class SelectContent {
 	public static Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
 
 	public static void init(View view) {
+		ITEMS.clear();
+		ITEM_MAP.clear();
 		addItem(new DummyItem("1", view.getResources().getString(
 				R.string.tab_online_talk)));
 		addItem(new DummyItem("2", view.getResources().getString(

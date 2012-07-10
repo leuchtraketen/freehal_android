@@ -28,6 +28,7 @@ public class OverviewActivity extends FragmentActivity
             Bundle arguments = new Bundle();
             arguments.putString(DetailFragment.ARG_ITEM_ID, id);
             DetailFragment fragment = new DetailFragment();
+            fragment.setActivity(this);
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.conversation_detail_container, fragment)

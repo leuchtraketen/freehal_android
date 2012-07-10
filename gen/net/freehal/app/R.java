@@ -14,12 +14,13 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int button_send=0x7f060004;
-        public static final int conversation_detail=0x7f060002;
+        public static final int button_send=0x7f060005;
+        public static final int conversation_detail=0x7f060003;
         public static final int conversation_detail_container=0x7f060000;
         public static final int conversation_list=0x7f060001;
-        public static final int edit_message=0x7f060003;
-        public static final int settings_detail=0x7f060005;
+        public static final int conversation_scrollview=0x7f060002;
+        public static final int edit_message=0x7f060004;
+        public static final int settings_detail=0x7f060006;
     }
     public static final class layout {
         public static final int activity_conversation_list=0x7f030005;
@@ -35,6 +36,8 @@ public final class R {
         public static final int comment_conversation_offline=0x7f040006;
         public static final int comment_conversation_online=0x7f040005;
         public static final int hint_message=0x7f040003;
+        public static final int no_output=0x7f04000c;
+        public static final int not_implemented=0x7f04000d;
         public static final int person_freehal=0x7f040008;
         public static final int person_user=0x7f040007;
         public static final int tab_offline_talk=0x7f04000a;

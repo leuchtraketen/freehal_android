@@ -20,6 +20,7 @@ public class DetailActivity extends FragmentActivity {
             arguments.putString(DetailFragment.ARG_ITEM_ID,
                     getIntent().getStringExtra(DetailFragment.ARG_ITEM_ID));
             DetailFragment fragment = new DetailFragment();
+            fragment.setActivity(this);
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.conversation_detail_container, fragment)

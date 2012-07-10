@@ -49,7 +49,7 @@ public class OverviewFragment extends ListFragment {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
         else {
-        	setActivatedPosition(0);
+        	setActivatedPosition(1);
         }
     }
 
