@@ -7,7 +7,8 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -30,7 +31,5 @@
                 android:value=".OverviewActivity" />
         </activity>
     </application>
-    
+
 </manifest>
-
-

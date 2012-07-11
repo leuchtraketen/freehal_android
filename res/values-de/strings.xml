@@ -14,9 +14,11 @@
     <string name="tab_log">Log-Datei</string>
     <string name="tab_graph">Syntaxbaum</string>
     <string name="tab_settings">Einstellungen</string>
+    <string name="tab_about">Über FreeHAL</string>
     <string name="no_output">&lt;i&gt;(Keine Antwort)&lt;/i&gt;</string>
     <string name="not_implemented">&lt;i&gt;(noch nicht implementiert)&lt;/i&gt;</string>
     <string name="no_log">Keine Log-Datei verf&amp;uuml;gbar.</string>
     <string name="no_graph">Kein Syntaxbaum verf&amp;uuml;gbar.</string>
-    
+    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.</string>
+
 </resources>

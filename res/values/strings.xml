@@ -14,9 +14,11 @@
     <string name="tab_log">Log File</string>
     <string name="tab_graph">Parse Tree</string>
     <string name="tab_settings">Settings</string>
+    <string name="tab_about">About</string>
     <string name="no_output">&lt;i&gt;(no answer)&lt;/i&gt;</string>
     <string name="not_implemented">&lt;i&gt;(not yet implemented)&lt;/i&gt;</string>
     <string name="no_log">There is no log file to view.</string>
     <string name="no_graph">There is no parse tree to view.</string>
+    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.</string>
     
 </resources>

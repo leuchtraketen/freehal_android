@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.freehal.app.R;
-
 import android.content.res.Resources;
-import android.view.View;
 
 public class SelectContent {
 
@@ -44,6 +42,8 @@ public class SelectContent {
 				R.string.tab_graph)));
 		addItem(new DummyItem("settings", res.getString(
 				R.string.tab_settings)));
+		addItem(new DummyItem("about", res.getString(
+				R.string.tab_about)));
 	}
 
 	public static String validateId(final String id) {
@@ -53,7 +53,7 @@ public class SelectContent {
 		if (ITEM_MAP.containsKey(id))
 			return id;
 		else
-			return "online";
+			return "about";
 	}
 
 	private static void addItem(DummyItem item) {

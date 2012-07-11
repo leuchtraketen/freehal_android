@@ -60,9 +60,9 @@ public class DetailFragment extends SherlockFragment {
 	 * @return the singleton instance
 	 */
 	public static DetailFragment forTab(String id, Activity activity) {
-		Log.e("forTab", "id="+id);
+		Log.e("forTab", "id=" + id);
 		id = SelectContent.validateId(id);
-		Log.e("forTab", "(id="+id+")");
+		Log.e("forTab", "(id=" + id + ")");
 		if (!tabs.containsKey(id)) {
 			Log.e("forTab", "not cached.");
 			DetailFragment instance = new DetailFragment();
@@ -73,7 +73,7 @@ public class DetailFragment extends SherlockFragment {
 			instance.setArguments(arguments);
 			tabs.put(id, instance);
 		}
-		Log.e("forTab", "(tabs.get(id).id="+tabs.get(id).getTab()+")");
+		Log.e("forTab", "(tabs.get(id).id=" + tabs.get(id).getTab() + ")");
 		return tabs.get(id);
 	}
 
@@ -144,6 +144,8 @@ public class DetailFragment extends SherlockFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
+		tab = SelectContent.validateId(tab);
+
 		final View rootView;
 		if (tab.equals("online") || tab.equals("offline")) {
 			rootView = onCreateViewConversation(inflater, container,
@@ -156,6 +158,9 @@ public class DetailFragment extends SherlockFragment {
 					savedInstanceState, tab);
 		} else if (tab.equals("settings")) {
 			rootView = onCreateViewSettings(inflater, container,
+					savedInstanceState, tab);
+		} else if (tab.equals("about")) {
+			rootView = onCreateViewAbout(inflater, container,
 					savedInstanceState, tab);
 		} else {
 			Log.e("onCreateView", "unknown tab: " + tab);
@@ -266,6 +271,16 @@ public class DetailFragment extends SherlockFragment {
 				container, false);
 		((TextView) rootView.findViewById(R.id.settings_detail))
 				.setText("test");
+		return rootView;
+	}
+
+	public View onCreateViewAbout(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState, final String item) {
+
+		View rootView = inflater.inflate(R.layout.fragment_about_detail,
+				container, false);
+		((TextView) rootView.findViewById(R.id.about_detail)).setText(Html
+				.fromHtml(getResources().getString(R.string.about_text)));
 		return rootView;
 	}
 

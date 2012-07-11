@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import net.freehal.app.impl.FreehalUser;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Html;
@@ -33,14 +35,15 @@ public class History {
 	}
 
 	public void addInput(String input) {
-		history.add(tag(getString(R.string.person_user), "b", "") + ": "
-				+ input);
+		final String user = FreehalUser.get().getUserName(
+				getString(R.string.person_user));
+		history.add(tag(user, "b", "") + ": " + input);
 		save();
 	}
 
 	public void addOutput(String output) {
-		history.add(tag(getString(R.string.person_freehal), "b", "") + ": "
-				+ output);
+		final String name = getString(R.string.person_freehal);
+		history.add(tag(name, "b", "") + ": " + output);
 		save();
 	}
 
