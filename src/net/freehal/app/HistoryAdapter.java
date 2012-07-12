@@ -1,5 +1,6 @@
 package net.freehal.app;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+@TargetApi(8)
 public class HistoryAdapter extends ArrayAdapter<String> implements HistoryHook {
 
 	private Context context;
@@ -37,7 +39,7 @@ public class HistoryAdapter extends ArrayAdapter<String> implements HistoryHook 
 		TextView tv_text = (TextView) v.findViewById(R.id.text);
 
 		if (tv_name != null) {
-			tv_name.setText(Html.fromHtml(history.getName(position)+":"));
+			tv_name.setText(Html.fromHtml(history.getName(position) + ":"));
 		}
 		if (tv_text != null) {
 			tv_text.setText(Html.fromHtml(history.getText(position)));
@@ -55,7 +57,8 @@ public class HistoryAdapter extends ArrayAdapter<String> implements HistoryHook 
 	public void onHistoryChanged() {
 		notifyDataSetChanged();
 		if (list != null)
-			list.smoothScrollToPosition(history.size());
+			// list.smoothScrollToPosition(history.size() * 2);
+			list.setSelection(getCount() - 1);
 	}
 
 	public void setListView(ListView list) {

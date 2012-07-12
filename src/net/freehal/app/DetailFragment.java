@@ -241,7 +241,7 @@ public class DetailFragment extends SherlockFragment {
 					inputStatus.showSoftInput(edit,
 							InputMethodManager.SHOW_IMPLICIT);
 
-					ExecuteLater asyncScroll = new ExecuteLater(500, 5) {
+					ExecuteLater asyncScroll = new ExecuteLater(300, 3) {
 						@Override
 						public void run() {
 							history.refresh();
