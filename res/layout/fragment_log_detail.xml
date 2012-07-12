@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#ffffff"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".DetailFragment" >
-
 
     <ScrollView
         android:id="@+id/scrollview"
