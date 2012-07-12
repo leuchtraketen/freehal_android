@@ -220,7 +220,6 @@ public class DetailFragment extends SherlockFragment {
 
 	private void showKeyboard(final EditText edit, final int timeToSleep) {
 		edit.setOnTouchListener(new View.OnTouchListener() {
-
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				ExecuteLater asyncScroll = new ExecuteLater(500, 5) {
