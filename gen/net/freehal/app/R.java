@@ -786,6 +786,7 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020055;
     }
     public static final class id {
+        public static final int about_detail=0x7f040029;
         public static final int abs__action_bar=0x7f040022;
         public static final int abs__action_bar_container=0x7f040021;
         public static final int abs__action_bar_subtitle=0x7f040011;
@@ -816,7 +817,6 @@ containing a value of this type.
         public static final int abs__titleDivider=0x7f04001c;
         public static final int abs__up=0x7f04000b;
         public static final int button_send=0x7f04002c;
-        public static final int detail=0x7f04002a;
         public static final int detail_container=0x7f040027;
         public static final int disableHome=0x7f040009;
         public static final int edit_message=0x7f04002b;
@@ -824,14 +824,17 @@ containing a value of this type.
         public static final int homeAsUp=0x7f040006;
         public static final int list=0x7f040028;
         public static final int listMode=0x7f040002;
-        public static final int log_detail=0x7f04002e;
+        public static final int listView=0x7f04002a;
+        public static final int log_detail=0x7f04002f;
+        public static final int name=0x7f040031;
         public static final int normal=0x7f040001;
-        public static final int scrollview=0x7f040029;
-        public static final int settings_detail=0x7f04002f;
+        public static final int scrollview=0x7f04002e;
+        public static final int settings_detail=0x7f040030;
         public static final int showCustom=0x7f040008;
         public static final int showHome=0x7f040005;
         public static final int showTitle=0x7f040007;
         public static final int tabMode=0x7f040003;
+        public static final int text=0x7f040032;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -862,14 +865,17 @@ containing a value of this type.
         public static final int activity_detail=0x7f030014;
         public static final int activity_list=0x7f030015;
         public static final int activity_twopane=0x7f030016;
-        public static final int fragment_detail=0x7f030017;
-        public static final int fragment_graph_detail=0x7f030018;
-        public static final int fragment_log_detail=0x7f030019;
-        public static final int fragment_settings_detail=0x7f03001a;
-        public static final int sherlock_spinner_dropdown_item=0x7f03001b;
-        public static final int sherlock_spinner_item=0x7f03001c;
+        public static final int fragment_about_detail=0x7f030017;
+        public static final int fragment_conversation_detail=0x7f030018;
+        public static final int fragment_graph_detail=0x7f030019;
+        public static final int fragment_log_detail=0x7f03001a;
+        public static final int fragment_settings_detail=0x7f03001b;
+        public static final int row=0x7f03001c;
+        public static final int sherlock_spinner_dropdown_item=0x7f03001d;
+        public static final int sherlock_spinner_item=0x7f03001e;
     }
     public static final class string {
+        public static final int about_text=0x7f09001d;
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_home_description=0x7f090000;
@@ -905,12 +911,13 @@ containing a value of this type.
         public static final int comment_offline=0x7f090010;
         public static final int comment_online=0x7f09000f;
         public static final int hint_message=0x7f09000d;
-        public static final int no_graph=0x7f09001b;
-        public static final int no_log=0x7f09001a;
-        public static final int no_output=0x7f090018;
-        public static final int not_implemented=0x7f090019;
+        public static final int no_graph=0x7f09001c;
+        public static final int no_log=0x7f09001b;
+        public static final int no_output=0x7f090019;
+        public static final int not_implemented=0x7f09001a;
         public static final int person_freehal=0x7f090012;
         public static final int person_user=0x7f090011;
+        public static final int tab_about=0x7f090018;
         public static final int tab_graph=0x7f090016;
         public static final int tab_log=0x7f090015;
         public static final int tab_offline_talk=0x7f090014;
