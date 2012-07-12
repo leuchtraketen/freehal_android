@@ -19,13 +19,14 @@ import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ScrollView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -38,6 +39,7 @@ public class DetailFragment extends SherlockFragment {
 	private String tab;
 	private Activity activity;
 	private History history;
+	private HistoryAdapter historyAdapter;
 
 	private static FreehalImpl onlineImpl;
 	private static FreehalImpl offlineImpl;
@@ -60,10 +62,11 @@ public class DetailFragment extends SherlockFragment {
 	 * @return the singleton instance
 	 */
 	public static DetailFragment forTab(String id, Activity activity) {
-		Log.e("forTab", "id=" + id);
+		Log.e("forTab", "1: id=" + id);
 		id = SelectContent.validateId(id);
-		Log.e("forTab", "(id=" + id + ")");
-		if (!tabs.containsKey(id)) {
+		Log.e("forTab", "2: id=" + id);
+		boolean isCached = tabs.containsKey(id);
+		if (!isCached) {
 			Log.e("forTab", "not cached.");
 			DetailFragment instance = new DetailFragment();
 			instance.setTab(id);
@@ -73,8 +76,12 @@ public class DetailFragment extends SherlockFragment {
 			instance.setArguments(arguments);
 			tabs.put(id, instance);
 		}
-		Log.e("forTab", "(tabs.get(id).id=" + tabs.get(id).getTab() + ")");
-		return tabs.get(id);
+		Log.e("forTab", "3: tabs.get(id).id=" + tabs.get(id).getTab());
+		DetailFragment instance = tabs.get(id);
+		if (!isCached) {
+			tabs.remove(id);
+		}
+		return instance;
 	}
 
 	public String getTab() {
@@ -98,8 +105,7 @@ public class DetailFragment extends SherlockFragment {
 		return impl.getOutput();
 	}
 
-	public void gotInput(final EditText edit, final TextView text,
-			final ScrollView scrollView, final FreehalImpl impl) {
+	public void gotInput(final EditText edit, final FreehalImpl impl) {
 
 		if (history == null)
 			return;
@@ -108,7 +114,6 @@ public class DetailFragment extends SherlockFragment {
 
 		if (input.length() > 0) {
 			history.addInput(input);
-			history.writeTo(text, scrollView);
 			edit.setText("");
 
 			final String noOutput = getResources()
@@ -129,9 +134,8 @@ public class DetailFragment extends SherlockFragment {
 				protected void onPostExecute(String output) {
 					history.addOutput(output);
 					// if (frag.isAdded() && frag.isVisible()) {
-					history.writeTo(text, scrollView);
 					SpeechHelper.getInstance().say(output, activity);
-					showKeyboard(edit, scrollView, 1000);
+					showKeyboard(edit, 1000);
 				}
 
 			};
@@ -174,13 +178,10 @@ public class DetailFragment extends SherlockFragment {
 	public View onCreateViewConversation(LayoutInflater inflater,
 			ViewGroup container, Bundle savedInstanceState, final String item) {
 
-		final View rootView = inflater.inflate(R.layout.fragment_detail,
-				container, false);
-		final TextView text = (TextView) rootView.findViewById(R.id.detail);
+		final View rootView = inflater.inflate(
+				R.layout.fragment_conversation_detail, container, false);
 		final EditText edit = (EditText) rootView
 				.findViewById(R.id.edit_message);
-		final ScrollView scrollView = (ScrollView) rootView
-				.findViewById(R.id.scrollview);
 		final Button sendButton = (Button) rootView
 				.findViewById(R.id.button_send);
 
@@ -191,10 +192,9 @@ public class DetailFragment extends SherlockFragment {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER) {
-					gotInput(edit, text, scrollView, impl);
+					gotInput(edit, impl);
 					return true;
 				} else {
-					scrollView.smoothScrollTo(0, edit.getBottom());
 					return false;
 				}
 			}
@@ -202,29 +202,55 @@ public class DetailFragment extends SherlockFragment {
 		sendButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				gotInput(edit, text, scrollView, impl);
+				gotInput(edit, impl);
 			}
 		});
 
-		history.writeTo(text, scrollView);
-		showKeyboard(edit, scrollView, 1000);
+		showKeyboard(edit, 1000);
+
+		ListView list = (ListView) rootView.findViewById(R.id.listView);
+
+		historyAdapter = new HistoryAdapter(rootView.getContext(),
+				R.layout.row, history);
+		historyAdapter.setListView(list);
+		list.setAdapter(historyAdapter);
 
 		return rootView;
 	}
 
-	private void showKeyboard(final EditText edit, final ScrollView scrollView,
-			final int timeToSleep) {
-		if (edit.getOnFocusChangeListener() == null)
-			edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-				public void onFocusChange(View v, boolean hasFocus) {
-					if (hasFocus && activity != null) {
-						InputMethodManager inputStatus = (InputMethodManager) activity
-								.getSystemService(Context.INPUT_METHOD_SERVICE);
-						inputStatus.showSoftInput(edit,
-								InputMethodManager.SHOW_IMPLICIT);
+	private void showKeyboard(final EditText edit, final int timeToSleep) {
+		edit.setOnTouchListener(new View.OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				ExecuteLater asyncScroll = new ExecuteLater(500, 5) {
+					@Override
+					public void run() {
+						history.refresh();
 					}
+				};
+				asyncScroll.execute();
+				return false;
+			}
+		});
+		edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus && activity != null) {
+					InputMethodManager inputStatus = (InputMethodManager) activity
+							.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputStatus.showSoftInput(edit,
+							InputMethodManager.SHOW_IMPLICIT);
+
+					ExecuteLater asyncScroll = new ExecuteLater(500, 5) {
+						@Override
+						public void run() {
+							history.refresh();
+						}
+					};
+					asyncScroll.execute();
 				}
-			});
+			}
+		});
 
 		ExecuteLater asyncFocus = new ExecuteLater(timeToSleep) {
 			@Override

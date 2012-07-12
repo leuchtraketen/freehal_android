@@ -7,21 +7,12 @@
     android:padding="16dp"
     tools:context=".DetailFragment" >
 
-    <ScrollView
-        android:id="@+id/scrollview"
+    <ListView
+        android:id="@+id/listView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1.0"
-        android:fillViewport="true"
-        android:scrollbars="vertical" >
-
-        <TextView
-            android:id="@+id/detail"
-            style="?android:attr/textAppearanceMedium"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1.0" />
-    </ScrollView>
+        android:layout_weight="1" >
+    </ListView>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -34,7 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/hint_message">
+            android:hint="@string/hint_message" >
         </EditText>
 
         <Button
