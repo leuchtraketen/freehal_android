@@ -24,5 +24,6 @@
     <string name="edit_question">edit question</string>
     <string name="share_conversation">share conversation</string>
     <string name="subject_share_conversation">FreeHAL</string>
+    <string name="menu_speak">Voice Recognition</string>
 
 </resources>

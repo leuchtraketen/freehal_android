@@ -4,11 +4,14 @@ import java.util.ArrayList;
 
 import org.apache.http.util.EncodingUtils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 public class Util {
+
+	private static Activity activity;
 
 	public static String toAscii(String str) {
 		byte[] dirty = EncodingUtils.getBytes(str, "UTF-8");
@@ -86,5 +89,13 @@ public class Util {
 			packageInfo.versionName = "0";
 		}
 		return packageInfo;
+	}
+
+	public static void setActivity(Activity activity) {
+		Util.activity = activity;
+	}
+
+	public static Activity getActivity() {
+		return activity;
 	}
 }

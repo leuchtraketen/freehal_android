@@ -57,7 +57,6 @@ public class HistoryAdapter extends ArrayAdapter<String> implements HistoryHook 
 	public void onHistoryChanged() {
 		notifyDataSetChanged();
 		if (list != null)
-			// list.smoothScrollToPosition(history.size() * 2);
 			list.setSelection(getCount() - 1);
 	}
 

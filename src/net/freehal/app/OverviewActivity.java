@@ -3,10 +3,17 @@ package net.freehal.app;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.SpeechHelper;
+import net.freehal.app.util.Util;
+import net.freehal.app.util.VoiceRecHelper;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 
 public class OverviewActivity extends SherlockFragmentActivity implements
 		OverviewFragment.Callbacks {
@@ -19,8 +26,9 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
 
+		Util.setActivity(this);
 		FreehalUser.init(this.getApplicationContext());
-		SpeechHelper.getInstance().start(this);
+		SpeechHelper.getInstance().start();
 
 		if (findViewById(R.id.detail_container) != null) {
 			mTwoPane = true;
@@ -68,7 +76,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 	public void onItemSelected(String id) {
 		selectedTab = id;
 		if (mTwoPane) {
-			DetailFragment fragment = DetailFragment.forTab(id, this);
+			DetailFragment fragment = DetailFragment.forTab(id);
 			getSupportFragmentManager().beginTransaction()
 					.replace(R.id.detail_container, fragment).commit();
 
@@ -85,4 +93,38 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		if (selectedTab != null && selectedTab.length() > 0)
 			savedInstanceState.putString("tab", selectedTab);
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		doCreateOptionsMenu(menu, this,
+				this.getApplicationContext());
+		return true;
+	}
+
+	public static void doCreateOptionsMenu(Menu menu,
+			final SherlockFragmentActivity activity, final Context appContext) {
+		MenuInflater inflater = activity.getSupportMenuInflater();
+		inflater.inflate(R.menu.actionbar, menu);
+
+		if (VoiceRecHelper.hasVoiceRecognition(appContext)) {
+			final MenuItem voiceRec = menu.findItem(R.id.menu_speak);
+			voiceRec.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					VoiceRecHelper.start(activity, appContext);
+					return true;
+				}
+			});
+		} else {
+			menu.removeItem(R.id.menu_speak);
+		}
+	}
+	
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == VoiceRecHelper.REQUEST_CODE) {
+        	VoiceRecHelper.onActivityResult(requestCode, resultCode, data);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

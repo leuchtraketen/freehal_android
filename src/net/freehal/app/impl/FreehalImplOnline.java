@@ -4,21 +4,24 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Random;
 
-import android.content.res.Resources;
-
 import net.freehal.app.util.HttpUtil;
 
 public class FreehalImplOnline extends FreehalImpl {
 
-	@SuppressWarnings("unused")
-	private final Resources resources;
+	private static FreehalImplOnline instance;
+
 	private String input;
 	private String output;
 	private String log;
 	private String graph;
 
-	public FreehalImplOnline(Resources resources) {
-		this.resources = resources;
+	private FreehalImplOnline() {
+	}
+
+	public static FreehalImpl getInstance() {
+		if (instance == null)
+			instance = new FreehalImplOnline();
+		return instance;
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package net.freehal.app.util;
 
 import java.util.Locale;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -16,22 +15,21 @@ public class SpeechHelper implements OnInitListener {
 	private static TextToSpeech tts;
 	private boolean ready;
 	private String textSayOnInit;
-	private Activity activity;
 
 	public static SpeechHelper getInstance() {
 		return helper;
 	}
 
-	public void start(Activity activity) {
+	public void start() {
 		ready = false;
-		tts = new TextToSpeech(activity.getApplicationContext(), this);
+		tts = new TextToSpeech(Util.getActivity().getApplicationContext(), this);
 	}
 
-	public void say(String text, Activity activity) {
+	public void say(String text) {
 		if (tts == null) {
 			Log.e("TTS", "say: tts == null");
 			this.textSayOnInit = text;
-			start(activity);
+			start();
 		} else if (ready) {
 			Log.e("TTS", "say: tts != null");
 			tts.speak(Html.fromHtml(text).toString(), TextToSpeech.QUEUE_FLUSH,
@@ -50,7 +48,7 @@ public class SpeechHelper implements OnInitListener {
 				Intent installTTSIntent = new Intent();
 				installTTSIntent
 						.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-				activity.startActivity(installTTSIntent);
+				Util.getActivity().startActivity(installTTSIntent);
 
 				result = tts.setLanguage(Locale.ENGLISH);
 			}
@@ -59,7 +57,7 @@ public class SpeechHelper implements OnInitListener {
 
 			if (tts != null && textSayOnInit != null
 					&& textSayOnInit.length() > 0)
-				say(textSayOnInit, null);
+				say(textSayOnInit);
 		} else {
 			Log.e("TTS", "Initialization failed!");
 			ready = true;

@@ -1,17 +1,23 @@
 package net.freehal.app.impl;
 
 import net.freehal.app.R;
-import android.content.res.Resources;
+import net.freehal.app.util.Util;
 
 public class FreehalImplOffline extends FreehalImpl {
 
-	private final Resources resources;
+	private static FreehalImplOffline instance;
+
 	@SuppressWarnings("unused")
 	private String input;
 	private String output;
 
-	public FreehalImplOffline(Resources resources) {
-		this.resources = resources;
+	private FreehalImplOffline() {
+	}
+
+	public static FreehalImpl getInstance() {
+		if (instance == null)
+			instance = new FreehalImplOffline();
+		return instance;
 	}
 
 	@Override
@@ -21,7 +27,8 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	@Override
 	public void compute() {
-		output = resources.getString(R.string.not_implemented);
+		output = Util.getActivity().getResources()
+				.getString(R.string.not_implemented);
 	}
 
 	@Override

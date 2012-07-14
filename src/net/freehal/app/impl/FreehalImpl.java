@@ -15,5 +15,5 @@ public abstract class FreehalImpl {
 	public abstract String getVersionName();
 
 	public abstract int getVersionCode();
-
+	
 }

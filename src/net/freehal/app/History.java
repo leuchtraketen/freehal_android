@@ -11,27 +11,48 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import net.freehal.app.impl.FreehalImplUtil;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.text.Html;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class History {
-	private static Context view;
 	private ArrayList<String> name;
 	private ArrayList<String> text;
 	private ArrayList<String> reference;
 	private String item_id;
 	private int alternateText;
 	private static HistoryHook hook;
+	static HashMap<String, History> singletons;
 
-	public History(Context view, String item_id) {
-		History.view = view;
+	static {
+		singletons = new HashMap<String, History>();
+	}
+
+	public static History getInstance(String item) {
+		if (!singletons.containsKey(item)) {
+			History hist = new History(item);
+			if (item.equals("online")) {
+				hist.setAlternateText(R.string.comment_online);
+			} else if (item.equals("offline")) {
+				hist.setAlternateText(R.string.comment_offline);
+			}
+			singletons.put(item, hist);
+		}
+		return singletons.get(item);
+	}
+
+	public static History getInstance() {
+		return getInstance(FreehalImplUtil.getCurrent());
+	}
+
+	private History(String item_id) {
 		this.item_id = item_id;
 		this.alternateText = 0;
 
@@ -64,7 +85,8 @@ public class History {
 	}
 
 	private File getStorageFile(final String column) {
-		return new File(view.getCacheDir(), "history_" + item_id + "_" + column);
+		return new File(Util.getActivity().getCacheDir(), "history_" + item_id
+				+ "_" + column);
 	}
 
 	private void save() {
@@ -122,7 +144,7 @@ public class History {
 	}
 
 	private String getString(int s) {
-		return view.getResources().getString(s);
+		return Util.getActivity().getResources().getString(s);
 	}
 
 	@SuppressLint("ParserError")
