@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.freehal.app.impl.FreehalUser;
+import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Html;
@@ -21,37 +22,45 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class History {
-	private Context view;
+	private static Context view;
 	private ArrayList<String> name;
 	private ArrayList<String> text;
+	private ArrayList<String> reference;
 	private String item_id;
 	private int alternateText;
-	private HistoryHook hook;
+	private static HistoryHook hook;
 
 	public History(Context view, String item_id) {
-		this.view = view;
+		History.view = view;
 		this.item_id = item_id;
 		this.alternateText = 0;
 
 		name = new ArrayList<String>();
 		text = new ArrayList<String>();
+		reference = new ArrayList<String>();
 
 		restore();
 	}
 
-	public void addInput(String input) {
+	public int addInput(String input, String ref) {
+		restore();
 		final String user = FreehalUser.get().getUserName(
 				getString(R.string.person_user));
 		name.add(tag(user, "b", ""));
 		text.add(input);
+		reference.add(ref);
 		save();
+		return text.size() - 1;
 	}
 
-	public void addOutput(String output) {
+	public int addOutput(String output, String ref) {
+		restore();
 		final String user = getString(R.string.person_freehal);
 		name.add(tag(user, "b", ""));
 		text.add(output);
+		reference.add(ref);
 		save();
+		return text.size() - 1;
 	}
 
 	private File getStorageFile(final String column) {
@@ -63,14 +72,17 @@ public class History {
 			save(name, "name");
 		if (!text.isEmpty())
 			save(text, "text");
+		if (!reference.isEmpty())
+			save(reference, "reference");
 
-		if (hook != null)
-			hook.onHistoryChanged();
+		if (History.hook != null)
+			History.hook.onHistoryChanged();
 	}
 
 	private void restore() {
 		restore(name, "name");
 		restore(text, "text");
+		restore(reference, "reference");
 	}
 
 	private void save(final ArrayList<String> list, final String column) {
@@ -93,6 +105,7 @@ public class History {
 		try {
 			DataInputStream din = new DataInputStream(new BufferedInputStream(
 					new FileInputStream(getStorageFile(column))));
+			list.clear();
 			try {
 				for (;;) {
 					list.add(din.readUTF());
@@ -167,22 +180,41 @@ public class History {
 	}
 
 	public String getText(int i) {
-		return i < text.size() ? text.get(i) : null;
+		return i < 0 ? null : i < text.size() ? text.get(i) : null;
+	}
+
+	public String getText(int i, int fallback) {
+		final String value = getText(i);
+		return value != null ? value : getText(fallback);
 	}
 
 	public String getName(int i) {
-		return i < name.size() ? name.get(i) : null;
+		return i < 0 ? null : i < name.size() ? name.get(i) : null;
+	}
+
+	public String getName(int i, int fallback) {
+		final String value = getName(i);
+		return value != null ? value : getName(fallback);
+	}
+
+	public String getRef(int i) {
+		return i < 0 ? null : i < reference.size() ? reference.get(i) : null;
+	}
+
+	public String getRef(int i, int fallback) {
+		final String value = getRef(i);
+		return value != null ? value : getRef(fallback);
 	}
 
 	public int size() {
-		return text.size() <= name.size() ? text.size() : name.size();
+		return Util.min(text.size(), name.size(), reference.size());
 	}
 
 	public void setHook(HistoryHook hook) {
-		this.hook = hook;
+		History.hook = hook;
 	}
 
 	public void refresh() {
-		hook.onHistoryChanged();
+		History.hook.onHistoryChanged();
 	}
 }

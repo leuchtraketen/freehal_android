@@ -12,18 +12,24 @@ import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -45,6 +51,7 @@ public class DetailFragment extends SherlockFragment {
 	private static FreehalImpl offlineImpl;
 	private static String log;
 	private static String graph;
+	private static Intent recievedIntent;
 
 	private static HashMap<String, DetailFragment> tabs;
 	static {
@@ -113,7 +120,7 @@ public class DetailFragment extends SherlockFragment {
 		final String input = Util.toAscii(edit.getText().toString());
 
 		if (input.length() > 0) {
-			history.addInput(input);
+			final int inputNo = history.addInput(input, "");
 			edit.setText("");
 
 			final String noOutput = getResources()
@@ -132,8 +139,8 @@ public class DetailFragment extends SherlockFragment {
 
 				@Override
 				protected void onPostExecute(String output) {
-					history.addOutput(output);
-					// if (frag.isAdded() && frag.isVisible()) {
+					history.addOutput(output, inputNo + "");
+
 					SpeechHelper.getInstance().say(output, activity);
 					showKeyboard(edit, 1000);
 				}
@@ -145,9 +152,17 @@ public class DetailFragment extends SherlockFragment {
 	}
 
 	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+		savedInstanceState.putString("tab", tab);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
+		if (savedInstanceState != null && savedInstanceState.containsKey("tab"))
+			tab = savedInstanceState.getString("tab");
 		tab = SelectContent.validateId(tab);
 
 		final View rootView;
@@ -215,7 +230,75 @@ public class DetailFragment extends SherlockFragment {
 		historyAdapter.setListView(list);
 		list.setAdapter(historyAdapter);
 
+		registerForContextMenu(list);
+
+		if (DetailFragment.hasRecievedIntent()) {
+			Intent intent = DetailFragment.getRecievedIntent();
+			String action = intent.getAction();
+			String type = intent.getType();
+
+			if (Intent.ACTION_SEND.equals(action) && type != null) {
+				if ("text/plain".equals(type)) {
+					edit.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+					gotInput(edit, impl);
+				}
+			}
+		}
+
 		return rootView;
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = this.getActivity().getMenuInflater();
+		inflater.inflate(R.menu.statement, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		if (history == null)
+			return true;
+
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
+				.getMenuInfo();
+
+		final int position = info.position;
+		final String text;
+		if (history.getRef(position).length() > 0)
+			text = history.getText(Integer.parseInt(history.getRef(position)),
+					position);
+		else
+			text = history.getText(position);
+		EditText edit = (EditText) getView().findViewById(R.id.edit_message);
+
+		switch (item.getItemId()) {
+		case R.id.menu_statement_ask_again:
+			edit.setText(text);
+			final FreehalImpl impl = chooseFreehalImpl(tab);
+			gotInput(edit, impl);
+			return true;
+		case R.id.menu_statement_edit:
+			edit.setText(text);
+			return true;
+		case R.id.menu_statement_share_conversation:
+			share(Html.fromHtml(history.toString()).toString(),
+					this.getResources().getString(
+							R.string.subject_share_conversation));
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+
+	private void share(final String text, final String subject) {
+		Intent sendIntent = new Intent();
+		sendIntent.setAction(Intent.ACTION_SEND);
+		sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+		sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+		sendIntent.setType("text/plain");
+		startActivity(sendIntent);
 	}
 
 	private void showKeyboard(final EditText edit, final int timeToSleep) {
@@ -225,7 +308,8 @@ public class DetailFragment extends SherlockFragment {
 				ExecuteLater asyncScroll = new ExecuteLater(500, 5) {
 					@Override
 					public void run() {
-						history.refresh();
+						if (history != null)
+							history.refresh();
 					}
 				};
 				asyncScroll.execute();
@@ -243,7 +327,8 @@ public class DetailFragment extends SherlockFragment {
 					ExecuteLater asyncScroll = new ExecuteLater(300, 3) {
 						@Override
 						public void run() {
-							history.refresh();
+							if (history != null)
+								history.refresh();
 						}
 					};
 					asyncScroll.execute();
@@ -277,12 +362,14 @@ public class DetailFragment extends SherlockFragment {
 			if (onlineImpl == null)
 				onlineImpl = new FreehalImplOnline(this.getResources());
 			impl = onlineImpl;
-			history.setAlternateText(R.string.comment_online);
+			if (history != null)
+				history.setAlternateText(R.string.comment_online);
 		} else if (item.equals("offline")) {
 			if (offlineImpl == null)
 				offlineImpl = new FreehalImplOffline(this.getResources());
 			impl = offlineImpl;
-			history.setAlternateText(R.string.comment_offline);
+			if (history != null)
+				history.setAlternateText(R.string.comment_offline);
 		} else {
 			impl = null;
 		}
@@ -304,8 +391,19 @@ public class DetailFragment extends SherlockFragment {
 
 		View rootView = inflater.inflate(R.layout.fragment_about_detail,
 				container, false);
+
+		final String htmlAbout = getResources().getString(R.string.about_text);
+		final String appVersionName = Util.getVersion(this.getActivity()
+				.getApplicationContext()).versionName;
+		final String onlineVersionName = chooseFreehalImpl("online")
+				.getVersionName();
+		final String offlineVersionName = chooseFreehalImpl("offline")
+				.getVersionName();
+
 		((TextView) rootView.findViewById(R.id.about_detail)).setText(Html
-				.fromHtml(getResources().getString(R.string.about_text)));
+				.fromHtml(String.format(htmlAbout, appVersionName,
+						onlineVersionName, offlineVersionName)));
+
 		return rootView;
 	}
 
@@ -348,5 +446,19 @@ public class DetailFragment extends SherlockFragment {
 
 	public void setActivity(Activity activity) {
 		this.activity = activity;
+	}
+
+	public static void setRecievedIntent(Intent intent) {
+		recievedIntent = intent;
+	}
+
+	public static Intent getRecievedIntent() {
+		Intent intent = recievedIntent;
+		recievedIntent = null;
+		return intent;
+	}
+
+	public static boolean hasRecievedIntent() {
+		return recievedIntent == null ? false : true;
 	}
 }

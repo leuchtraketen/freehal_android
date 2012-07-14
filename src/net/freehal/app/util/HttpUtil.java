@@ -40,11 +40,12 @@ import org.apache.http.params.HttpProtocolParams;
 
 public class HttpUtil {
 
-
-	public static String executeHttpGet(String url) throws Exception {
+	public static synchronized String executeHttpGet(String url)
+			throws Exception {
 		String page = "HTTP Error!";
 		BufferedReader in = null;
 		try {
+
 			HttpClient client = getTrustAllHttpClient();
 			HttpGet request = new HttpGet(url);
 			HttpResponse response = client.execute(request);
@@ -58,6 +59,7 @@ public class HttpUtil {
 			}
 			in.close();
 			page = sb.toString();
+
 		} finally {
 			if (in != null) {
 				try {

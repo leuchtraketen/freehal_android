@@ -3,7 +3,6 @@ package net.freehal.app.util;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -13,8 +12,6 @@ import android.util.Log;
 public class SpeechHelper implements OnInitListener {
 
 	private static final SpeechHelper helper = new SpeechHelper();
-
-	private int MY_DATA_CHECK_CODE = 1234;
 
 	private static TextToSpeech tts;
 	private boolean ready;

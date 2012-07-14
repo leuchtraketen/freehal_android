@@ -3,8 +3,6 @@ package net.freehal.app.impl;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
-import android.database.Cursor;
-import android.provider.ContactsContract;
 
 public class FreehalUser {
 

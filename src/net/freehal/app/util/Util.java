@@ -1,13 +1,12 @@
 package net.freehal.app.util;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import org.apache.http.util.EncodingUtils;
 
 import android.content.Context;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 public class Util {
 
@@ -61,5 +60,31 @@ public class Util {
 		for (int i = 0; i < toAdd.length(); ++i) {
 			clean.add((byte) toAdd.charAt(i));
 		}
+	}
+
+	public static int min(int a, int b) {
+		return a < b ? a : b;
+	}
+
+	public static int min(int a, int b, int c) {
+		return min(min(a, b), c);
+	}
+
+	public static int min(int a, int b, int c, int d) {
+		return min(min(a, b, c), d);
+	}
+
+	public static PackageInfo getVersion(Context context) {
+		PackageInfo packageInfo;
+		try {
+			packageInfo = context.getPackageManager().getPackageInfo(
+					context.getPackageName(), 0);
+		} catch (NameNotFoundException e) {
+			// Huh? Really?
+			packageInfo = new PackageInfo();
+			packageInfo.versionCode = 0;
+			packageInfo.versionName = "0";
+		}
+		return packageInfo;
 	}
 }

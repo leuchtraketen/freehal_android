@@ -38,4 +38,14 @@ public class FreehalImplOffline extends FreehalImpl {
 	public String getGraph() {
 		return null;
 	}
+
+	@Override
+	public String getVersionName() {
+		return "not installed.";
+	}
+
+	@Override
+	public int getVersionCode() {
+		return -1;
+	}
 }

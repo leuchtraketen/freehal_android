@@ -44,7 +44,7 @@ public class HistoryAdapter extends ArrayAdapter<String> implements HistoryHook 
 		if (tv_text != null) {
 			tv_text.setText(Html.fromHtml(history.getText(position)));
 		}
-
+		
 		return v;
 	}
 

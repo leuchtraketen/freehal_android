@@ -76,4 +76,14 @@ public class FreehalImplOnline extends FreehalImpl {
 	public String getLog() {
 		return log;
 	}
+
+	@Override
+	public String getVersionName() {
+		return "not implemented.";
+	}
+
+	@Override
+	public int getVersionCode() {
+		return -1;
+	}
 }

@@ -9,8 +9,8 @@
     <string name="comment_offline">The offline version only works on rooted Android devices.</string>
     <string name="person_user">You</string>
     <string name="person_freehal">FreeHAL</string>
-    <string name="tab_online_talk">Online Version</string>
-    <string name="tab_offline_talk">Offline Version</string>
+    <string name="tab_online_talk">Online Talk</string>
+    <string name="tab_offline_talk">Offline Talk</string>
     <string name="tab_log">Log File</string>
     <string name="tab_graph">Parse Tree</string>
     <string name="tab_settings">Settings</string>
@@ -19,6 +19,10 @@
     <string name="not_implemented">&lt;i&gt;(not yet implemented)&lt;/i&gt;</string>
     <string name="no_log">There is no log file to view.</string>
     <string name="no_graph">There is no parse tree to view.</string>
-    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.</string>
-    
+    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.&lt;br&gt;&lt;br&gt;&lt;b&gt;Version (Android app):&lt;/b&gt; %1$s&lt;br&gt;&lt;b&gt;Version (Online version):&lt;/b&gt; %2$s&lt;br&gt;&lt;b&gt;Version (Offline version):&lt;/b&gt; %3$s</string>
+    <string name="ask_again">ask again</string>
+    <string name="edit_question">edit question</string>
+    <string name="share_conversation">share conversation</string>
+    <string name="subject_share_conversation">FreeHAL</string>
+
 </resources>

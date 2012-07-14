@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_statement_ask_again"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/ask_again"/>
+    <item
+        android:id="@+id/menu_statement_edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/edit_question"/>
+    <item
+        android:id="@+id/menu_statement_share_conversation"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/share_conversation"/>
+
+</menu>

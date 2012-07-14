@@ -15,6 +15,7 @@ public class OverviewFragment extends SherlockListFragment {
 
 	private Callbacks mCallbacks = sDummyCallbacks;
 	private int mActivatedPosition = ListView.INVALID_POSITION;
+	private boolean mTwoPane = false;
 
 	public interface Callbacks {
 		public void onItemSelected(String id);
@@ -39,9 +40,9 @@ public class OverviewFragment extends SherlockListFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		SelectContent.init(view.getResources());
-		setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(getActivity(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1, SelectContent.ITEMS));
+
+		createAdapter();
+
 		if (savedInstanceState != null
 				&& savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
 			setActivatedPosition(savedInstanceState
@@ -49,6 +50,18 @@ public class OverviewFragment extends SherlockListFragment {
 		} else {
 			setActivatedPosition(1);
 		}
+	}
+
+	void createAdapter() {
+		if (mTwoPane)
+			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(
+					getActivity(),
+					android.R.layout.simple_list_item_activated_1,
+					android.R.id.text1, SelectContent.ITEMS));
+		else
+			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(
+					getActivity(), android.R.layout.simple_list_item_1,
+					android.R.id.text1, SelectContent.ITEMS));
 	}
 
 	@Override
@@ -97,5 +110,11 @@ public class OverviewFragment extends SherlockListFragment {
 		}
 
 		mActivatedPosition = position;
+	}
+
+	public void setTwoPane(boolean b) {
+		mTwoPane = b;
+		if (mTwoPane)
+			createAdapter();
 	}
 }
