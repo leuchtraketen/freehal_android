@@ -38,6 +38,7 @@ public class FreehalImplOnline extends FreehalImpl {
 
 		String url = "https://www.tobias-schulz.eu/demo-api?sep=" + random;
 		try {
+			url += "&user=" + FreehalUser.get().getEmailAddr("");
 			url += "&q=" + URLEncoder.encode(input, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
