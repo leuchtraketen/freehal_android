@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/prefs_service" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="startAtBoot"
+            android:title="@string/pref_start_at_boot" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefs_identity" >
+        <EditTextPreference
+            android:key="userName"
+            android:title="@string/pref_user_name" />
+        <EditTextPreference
+            android:key="userEmail"
+            android:title="@string/pref_user_email" />
+        <EditTextPreference
+            android:key="freehalName"
+            android:title="@string/pref_freehal_name" />
+
+        
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/prefs_other" >
+        <PreferenceScreen
+            android:key="SecondPrefScreen"
+            android:summary="This is a second PreferenceScreen"
+            android:title="Second PreferenceScreen" >
+            <EditTextPreference
+                android:name="An other EditText Preference"
+                android:key="SecondEditTextPref"
+                android:summary="This is a preference in the second PreferenceScreen"
+                android:title="Edit text" />
+        </PreferenceScreen>
+
+        <Preference
+            android:key="clearPrefs"
+            android:summary="@string/pref_clear_summary"
+            android:title="@string/pref_clear" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

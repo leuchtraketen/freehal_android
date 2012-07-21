@@ -40,8 +40,6 @@ public class SelectContent {
 				R.string.tab_log)));
 		addItem(new DummyItem("graph", res.getString(
 				R.string.tab_graph)));
-		addItem(new DummyItem("settings", res.getString(
-				R.string.tab_settings)));
 		addItem(new DummyItem("about", res.getString(
 				R.string.tab_about)));
 	}

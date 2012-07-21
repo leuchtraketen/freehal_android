@@ -66,7 +66,7 @@ public class History {
 	public int addInput(String input, String ref) {
 		restore();
 		final String user = FreehalUser.get().getUserName(
-				getString(R.string.person_user));
+				Util.getString(R.string.person_user));
 		name.add(tag(user, "b", ""));
 		text.add(input);
 		reference.add(ref);
@@ -76,7 +76,7 @@ public class History {
 
 	public int addOutput(String output, String ref) {
 		restore();
-		final String user = getString(R.string.person_freehal);
+		final String user = FreehalUser.get().getFreehalName();
 		name.add(tag(user, "b", ""));
 		text.add(output);
 		reference.add(ref);
@@ -141,10 +141,6 @@ public class History {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private String getString(int s) {
-		return Util.getActivity().getResources().getString(s);
 	}
 
 	@SuppressLint("ParserError")

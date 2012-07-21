@@ -113,16 +113,13 @@ public class DetailFragment extends SherlockFragment {
 		} else if (tab.equals("graph")) {
 			rootView = onCreateViewGraph(inflater, container,
 					savedInstanceState, tab);
-		} else if (tab.equals("settings")) {
-			rootView = onCreateViewSettings(inflater, container,
-					savedInstanceState, tab);
 		} else if (tab.equals("about")) {
 			rootView = onCreateViewAbout(inflater, container,
 					savedInstanceState, tab);
 		} else {
 			Log.e("onCreateView", "unknown tab: " + tab);
-			rootView = onCreateViewSettings(inflater, container,
-					savedInstanceState, "offline");
+			// this should never happen
+			rootView = null;
 		}
 
 		return rootView;
@@ -236,16 +233,6 @@ public class DetailFragment extends SherlockFragment {
 		startActivity(sendIntent);
 	}
 
-	public View onCreateViewSettings(LayoutInflater inflater,
-			ViewGroup container, Bundle savedInstanceState, final String item) {
-
-		View rootView = inflater.inflate(R.layout.fragment_settings_detail,
-				container, false);
-		((TextView) rootView.findViewById(R.id.settings_detail))
-				.setText("test");
-		return rootView;
-	}
-
 	public View onCreateViewAbout(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState, final String item) {
 
@@ -253,8 +240,8 @@ public class DetailFragment extends SherlockFragment {
 				container, false);
 
 		final String htmlAbout = getResources().getString(R.string.about_text);
-		final String appVersionName = Util.getVersion(this.getActivity()
-				.getApplicationContext()).versionName;
+		final String appVersionName = "Version "
+				+ Util.getVersion(this.getActivity().getApplicationContext()).versionName;
 		final String onlineVersionName = FreehalImplUtil.getInstance("online")
 				.getVersionName();
 		final String offlineVersionName = FreehalImplUtil

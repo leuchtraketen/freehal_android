@@ -13,17 +13,31 @@
     <string name="tab_offline_talk">Offline Talk</string>
     <string name="tab_log">Log File</string>
     <string name="tab_graph">Parse Tree</string>
-    <string name="tab_settings">Settings</string>
     <string name="tab_about">About</string>
     <string name="no_output">&lt;i&gt;(no answer)&lt;/i&gt;</string>
     <string name="not_implemented">&lt;i&gt;(not yet implemented)&lt;/i&gt;</string>
     <string name="no_log">There is no log file to view.</string>
     <string name="no_graph">There is no parse tree to view.</string>
-    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.&lt;br&gt;&lt;br&gt;&lt;b&gt;Version (Android app):&lt;/b&gt; %1$s&lt;br&gt;&lt;b&gt;Version (Online version):&lt;/b&gt; %2$s&lt;br&gt;&lt;b&gt;Version (Offline version):&lt;/b&gt; %3$s</string>
+    <string name="about_text">The FreeHAL project\'s mission is to develop an open source computer program which very closely imitates human conversation. FreeHAL consists of a server application and several frontends, a cross-platform GUI and a web interface.&lt;br&gt;&lt;br&gt;Android app: %1$s&lt;br&gt;Online version: %2$s&lt;br&gt;Offline version: %3$s</string>
     <string name="ask_again">ask again</string>
     <string name="edit_question">edit question</string>
     <string name="share_conversation">share conversation</string>
     <string name="subject_share_conversation">FreeHAL</string>
     <string name="menu_speak">Voice Recognition</string>
+    <string name="notification_idle">Select this to start the artificial intelligence</string>
+    <string name="menu_preferences">Preferences</string>
+    <string name="set_preferences">Preferences</string>
+    <string name="string_true">Yes</string>
+    <string name="string_false">No</string>
+    <string name="prefs_service">System Service</string>
+    <string name="pref_start_at_boot">Start FreeHAL at device boot</string>
+    <string name="prefs_identity">Identity</string>
+    <string name="pref_user_name">Your name</string>
+    <string name="pref_user_email">Your email address</string>
+    <string name="pref_freehal_name">FreeHAL\'s name</string>
+    <string name="prefs_other">Other</string>
+    <string name="pref_clear">Reset</string>
+    <string name="pref_clear_summary">Reset all preferences to default values</string>
+    <string name="pref_clear_toast">All preferences have been reset</string>
 
 </resources>

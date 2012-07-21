@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Random;
 
+import net.freehal.app.util.ExecuteLater;
 import net.freehal.app.util.HttpUtil;
 
 public class FreehalImplOnline extends FreehalImpl {
@@ -14,8 +15,11 @@ public class FreehalImplOnline extends FreehalImpl {
 	private String output;
 	private String log;
 	private String graph;
+	private int version;
 
 	private FreehalImplOnline() {
+		version = -1;
+		retrieveVersion();
 	}
 
 	public static FreehalImpl getInstance() {
@@ -83,11 +87,47 @@ public class FreehalImplOnline extends FreehalImpl {
 
 	@Override
 	public String getVersionName() {
-		return "not implemented.";
+		if (version == -1)
+			retrieveVersion();
+		return version == -1 ? "unknown" : "Revision " + version;
 	}
 
 	@Override
 	public int getVersionCode() {
-		return -1;
+		if (version == -1)
+			retrieveVersion();
+		return version;
+	}
+
+	private void retrieveVersion() {
+		ExecuteLater later = new ExecuteLater(0) {
+
+			@Override
+			public void run() {
+			}
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				// main repository
+				final String url = "https://freehal.googlecode.com/svn/trunk/";
+
+				try {
+					output = HttpUtil.executeHttpGet(url).trim();
+					if (output.length() > 0) {
+						String[] splitted = output.split("Revision ", 2);
+						if (splitted.length == 2) {
+							splitted = splitted[1].split(":", 2);
+							if (splitted.length == 2) {
+								version = Integer.parseInt(splitted[0]);
+							}
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		};
+		later.execute();
 	}
 }

@@ -6,8 +6,10 @@ import org.apache.http.util.EncodingUtils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.preference.PreferenceManager;
 
 public class Util {
 
@@ -97,5 +99,15 @@ public class Util {
 
 	public static Activity getActivity() {
 		return activity;
+	}
+
+	public static String getString(int s) {
+		return Util.getActivity().getResources().getString(s);
+	}
+
+	public static SharedPreferences getPreferences() {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(activity.getBaseContext());
+		return prefs;
 	}
 }

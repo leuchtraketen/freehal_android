@@ -48,7 +48,7 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	@Override
 	public String getVersionName() {
-		return "not installed.";
+		return "not installed";
 	}
 
 	@Override
