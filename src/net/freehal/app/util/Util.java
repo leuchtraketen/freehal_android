@@ -106,8 +106,12 @@ public class Util {
 	}
 
 	public static SharedPreferences getPreferences() {
+		return getPreferences(activity.getBaseContext());
+	}
+
+	public static SharedPreferences getPreferences(Context context) {
 		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(activity.getBaseContext());
+				.getDefaultSharedPreferences(context);
 		return prefs;
 	}
 }

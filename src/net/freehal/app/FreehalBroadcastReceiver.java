@@ -13,11 +13,12 @@ public class FreehalBroadcastReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
 		// just make sure we are getting the right intent (better safe than
 		// sorry)
 		if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
 			
-			if (Util.getPreferences().getBoolean("startAtBoot", true)) {
+			if (Util.getPreferences(context).getBoolean("startAtBoot", true)) {
 			ComponentName comp = new ComponentName(context.getPackageName(),
 					FreehalService.class.getName());
 			ComponentName service = context.startService(new Intent()
