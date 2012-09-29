@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -65,8 +82,7 @@ public class History {
 
 	public int addInput(String input, String ref) {
 		restore();
-		final String user = FreehalUser.get().getUserName(
-				Util.getString(R.string.person_user));
+		final String user = FreehalUser.get().getUserName(Util.getString(R.string.person_user));
 		name.add(tag(user, "b", ""));
 		text.add(input);
 		reference.add(ref);
@@ -85,8 +101,7 @@ public class History {
 	}
 
 	private File getStorageFile(final String column) {
-		return new File(Util.getActivity().getCacheDir(), "history_" + item_id
-				+ "_" + column);
+		return new File(Util.getActivity().getCacheDir(), "history_" + item_id + "_" + column);
 	}
 
 	private void save() {
@@ -109,9 +124,8 @@ public class History {
 
 	private void save(final ArrayList<String> list, final String column) {
 		try {
-			DataOutputStream dos = new DataOutputStream(
-					new BufferedOutputStream(new FileOutputStream(
-							getStorageFile(column))));
+			DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
+					getStorageFile(column))));
 			for (String line : list) {
 				dos.writeUTF(line);
 			}
@@ -125,8 +139,8 @@ public class History {
 
 	private void restore(ArrayList<String> list, final String column) {
 		try {
-			DataInputStream din = new DataInputStream(new BufferedInputStream(
-					new FileInputStream(getStorageFile(column))));
+			DataInputStream din = new DataInputStream(new BufferedInputStream(new FileInputStream(
+					getStorageFile(column))));
 			list.clear();
 			try {
 				for (;;) {

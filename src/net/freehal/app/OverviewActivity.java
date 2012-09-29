@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.SpeechHelper;
@@ -15,8 +32,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 
-public class OverviewActivity extends SherlockFragmentActivity implements
-		OverviewFragment.Callbacks {
+public class OverviewActivity extends SherlockFragmentActivity implements OverviewFragment.Callbacks {
 
 	private static boolean mTwoPane;
 	private String selectedTab;
@@ -33,8 +49,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 
 		if (findViewById(R.id.detail_container) != null) {
 			mTwoPane = true;
-			fragment = (OverviewFragment) getSupportFragmentManager()
-					.findFragmentById(R.id.list);
+			fragment = (OverviewFragment) getSupportFragmentManager().findFragmentById(R.id.list);
 			fragment.setTwoPane(true);
 			fragment.setActivateOnItemClick(true);
 
@@ -63,8 +78,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 			DetailFragment.setRecievedIntent(null);
 
 			final String tab;
-			if (savedInstanceState != null
-					&& savedInstanceState.containsKey("tab"))
+			if (savedInstanceState != null && savedInstanceState.containsKey("tab"))
 				tab = savedInstanceState.getString("tab");
 			else
 				tab = "about";
@@ -92,8 +106,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		} else if (mTwoPane) {
 			selectedTab = id;
 			DetailFragment fragment = DetailFragment.forTab(id);
-			getSupportFragmentManager().beginTransaction()
-					.replace(R.id.detail_container, fragment).commit();
+			getSupportFragmentManager().beginTransaction().replace(R.id.detail_container, fragment).commit();
 
 		} else {
 			selectedTab = id;
@@ -116,8 +129,8 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		return true;
 	}
 
-	public static void doCreateOptionsMenu(Menu menu,
-			final SherlockFragmentActivity activity, final Context appContext) {
+	public static void doCreateOptionsMenu(Menu menu, final SherlockFragmentActivity activity,
+			final Context appContext) {
 		MenuInflater inflater = activity.getSupportMenuInflater();
 		inflater.inflate(R.menu.actionbar, menu);
 
@@ -125,8 +138,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		if (VoiceRecHelper.hasVoiceRecognition(appContext)) {
 			final MenuItem voiceRec = menu.findItem(R.id.menu_speak);
 			if (mTwoPane)
-				voiceRec.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
-						| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+				voiceRec.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 			voiceRec.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 				@Override
 				public boolean onMenuItemClick(MenuItem item) {
@@ -142,10 +154,8 @@ public class OverviewActivity extends SherlockFragmentActivity implements
 		{
 			final MenuItem prefs = menu.findItem(R.id.menu_settings);
 			if (mTwoPane)
-				prefs.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
-						| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-			prefs.setOnMenuItemClickListener(new FreehalPreferences.Listener(
-					activity));
+				prefs.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+			prefs.setOnMenuItemClickListener(new FreehalPreferences.Listener(activity));
 		}
 	}
 

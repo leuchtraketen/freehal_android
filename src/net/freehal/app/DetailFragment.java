@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import java.util.HashMap;
 
 import net.freehal.app.impl.FreehalImplUtil;
@@ -46,10 +63,10 @@ public class DetailFragment extends SherlockFragment {
 	 * Singleton!
 	 * 
 	 * @param id
-	 *            the id of the tab
+	 *        the id of the tab
 	 * @param activity
-	 *            the activity (OverviewActivity for tablets or DetailActivity
-	 *            for phones)
+	 *        the activity (OverviewActivity for tablets or DetailActivity for
+	 *        phones)
 	 * @return the singleton instance
 	 */
 	public static DetailFragment forTab(String id) {
@@ -94,8 +111,7 @@ public class DetailFragment extends SherlockFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		if (savedInstanceState != null && savedInstanceState.containsKey("tab"))
 			tab = savedInstanceState.getString("tab");
@@ -105,17 +121,13 @@ public class DetailFragment extends SherlockFragment {
 
 		final View rootView;
 		if (tab.equals("online") || tab.equals("offline")) {
-			rootView = onCreateViewConversation(inflater, container,
-					savedInstanceState, tab);
+			rootView = onCreateViewConversation(inflater, container, savedInstanceState, tab);
 		} else if (tab.equals("log")) {
-			rootView = onCreateViewLog(inflater, container, savedInstanceState,
-					tab);
+			rootView = onCreateViewLog(inflater, container, savedInstanceState, tab);
 		} else if (tab.equals("graph")) {
-			rootView = onCreateViewGraph(inflater, container,
-					savedInstanceState, tab);
+			rootView = onCreateViewGraph(inflater, container, savedInstanceState, tab);
 		} else if (tab.equals("about")) {
-			rootView = onCreateViewAbout(inflater, container,
-					savedInstanceState, tab);
+			rootView = onCreateViewAbout(inflater, container, savedInstanceState, tab);
 		} else {
 			Log.e("onCreateView", "unknown tab: " + tab);
 			// this should never happen
@@ -134,15 +146,12 @@ public class DetailFragment extends SherlockFragment {
 		}
 	}
 
-	public View onCreateViewConversation(LayoutInflater inflater,
-			ViewGroup container, Bundle savedInstanceState, final String item) {
+	public View onCreateViewConversation(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState, final String item) {
 
-		final View rootView = inflater.inflate(
-				R.layout.fragment_conversation_detail, container, false);
-		final EditText edit = (EditText) rootView
-				.findViewById(R.id.edit_message);
-		final Button sendButton = (Button) rootView
-				.findViewById(R.id.button_send);
+		final View rootView = inflater.inflate(R.layout.fragment_conversation_detail, container, false);
+		final EditText edit = (EditText) rootView.findViewById(R.id.edit_message);
+		final Button sendButton = (Button) rootView.findViewById(R.id.button_send);
 
 		// input listeners
 		InputProcess.Listener listener = new InputProcess.Listener(edit, this);
@@ -152,8 +161,7 @@ public class DetailFragment extends SherlockFragment {
 
 		// list view for conversation
 		ListView list = (ListView) rootView.findViewById(R.id.listView);
-		historyAdapter = new HistoryAdapter(rootView.getContext(),
-				R.layout.row, History.getInstance());
+		historyAdapter = new HistoryAdapter(rootView.getContext(), R.layout.row, History.getInstance());
 		historyAdapter.setListView(list);
 		list.setAdapter(historyAdapter);
 		registerForContextMenu(list);
@@ -166,8 +174,7 @@ public class DetailFragment extends SherlockFragment {
 
 			if (Intent.ACTION_SEND.equals(action) && type != null) {
 				if ("text/plain".equals(type)) {
-					InputProcess.recieveInput(
-							intent.getStringExtra(Intent.EXTRA_TEXT),
+					InputProcess.recieveInput(intent.getStringExtra(Intent.EXTRA_TEXT),
 							new EditTextKeyboardOpener(edit));
 				}
 			}
@@ -177,15 +184,13 @@ public class DetailFragment extends SherlockFragment {
 	}
 
 	public void onStartConversation() {
-		final EditText edit = (EditText) getView().findViewById(
-				R.id.edit_message);
+		final EditText edit = (EditText) getView().findViewById(R.id.edit_message);
 
 		new EditTextKeyboardOpener(edit).onShowKeyboard();
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = this.getActivity().getMenuInflater();
 		inflater.inflate(R.menu.statement, menu);
@@ -195,14 +200,12 @@ public class DetailFragment extends SherlockFragment {
 	public boolean onContextItemSelected(MenuItem item) {
 		final History history = History.getInstance();
 
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
-				.getMenuInfo();
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 
 		final int position = info.position;
 		final String text;
 		if (history.getRef(position).length() > 0)
-			text = history.getText(Integer.parseInt(history.getRef(position)),
-					position);
+			text = history.getText(Integer.parseInt(history.getRef(position)), position);
 		else
 			text = history.getText(position);
 		EditText edit = (EditText) getView().findViewById(R.id.edit_message);
@@ -216,8 +219,7 @@ public class DetailFragment extends SherlockFragment {
 			return true;
 		case R.id.menu_statement_share_conversation:
 			share(Html.fromHtml(history.toString()).toString(),
-					this.getResources().getString(
-							R.string.subject_share_conversation));
+					this.getResources().getString(R.string.subject_share_conversation));
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -233,40 +235,34 @@ public class DetailFragment extends SherlockFragment {
 		startActivity(sendIntent);
 	}
 
-	public View onCreateViewAbout(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState, final String item) {
+	public View onCreateViewAbout(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState,
+			final String item) {
 
-		View rootView = inflater.inflate(R.layout.fragment_about_detail,
-				container, false);
+		View rootView = inflater.inflate(R.layout.fragment_about_detail, container, false);
 
 		final String htmlAbout = getResources().getString(R.string.about_text);
 		final String appVersionName = "Version "
 				+ Util.getVersion(this.getActivity().getApplicationContext()).versionName;
-		final String onlineVersionName = FreehalImplUtil.getInstance("online")
-				.getVersionName();
-		final String offlineVersionName = FreehalImplUtil
-				.getInstance("offline").getVersionName();
+		final String onlineVersionName = FreehalImplUtil.getInstance("online").getVersionName();
+		final String offlineVersionName = FreehalImplUtil.getInstance("offline").getVersionName();
 
-		((TextView) rootView.findViewById(R.id.about_detail)).setText(Html
-				.fromHtml(String.format(htmlAbout, appVersionName,
-						onlineVersionName, offlineVersionName)));
+		((TextView) rootView.findViewById(R.id.about_detail)).setText(Html.fromHtml(String.format(htmlAbout,
+				appVersionName, onlineVersionName, offlineVersionName)));
 
 		return rootView;
 	}
 
-	public View onCreateViewLog(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState, final String item) {
+	public View onCreateViewLog(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState,
+			final String item) {
 
-		View rootView = inflater.inflate(R.layout.fragment_log_detail,
-				container, false);
+		View rootView = inflater.inflate(R.layout.fragment_log_detail, container, false);
 		// ((TextView)
 		// rootView.findViewById(R.id.log_heading)).setText(R.string.tab_log);
 
 		final String log = FreehalImplUtil.getInstance().getLog();
 		TextView view = (TextView) rootView.findViewById(R.id.log_detail);
 		if (log == null || log.length() == 0)
-			view.setText(Html.fromHtml(getResources()
-					.getString(R.string.no_log)));
+			view.setText(Html.fromHtml(getResources().getString(R.string.no_log)));
 		else
 			view.setText(log);
 		view.setTypeface(Typeface.MONOSPACE);
@@ -274,17 +270,15 @@ public class DetailFragment extends SherlockFragment {
 		return rootView;
 	}
 
-	public View onCreateViewGraph(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState, final String item) {
+	public View onCreateViewGraph(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState,
+			final String item) {
 
-		View rootView = inflater.inflate(R.layout.fragment_graph_detail,
-				container, false);
+		View rootView = inflater.inflate(R.layout.fragment_graph_detail, container, false);
 
 		final String graph = FreehalImplUtil.getInstance().getGraph();
 		WebView view = (WebView) rootView.findViewById(R.id.graph_detail);
 		if (graph == null || graph.length() < 1000)
-			view.loadData(getResources().getString(R.string.no_graph),
-					"text/html", null);
+			view.loadData(getResources().getString(R.string.no_graph), "text/html", null);
 		else
 			view.loadData(graph, "text/html", null);
 		view.getSettings().setSupportZoom(true);

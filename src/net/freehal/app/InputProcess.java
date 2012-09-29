@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import java.util.List;
 
 import net.freehal.app.impl.FreehalImpl;
@@ -14,8 +31,7 @@ import android.widget.EditText;
 
 public class InputProcess {
 
-	public static void recieveInput(final String rawInput,
-			final KeyboardOpener keyboardOpener) {
+	public static void recieveInput(final String rawInput, final KeyboardOpener keyboardOpener) {
 
 		final History history = History.getInstance();
 
@@ -24,8 +40,7 @@ public class InputProcess {
 		if (input.length() > 0) {
 			final int inputNo = history.addInput(input, "");
 
-			final String noOutput = Util.getActivity().getResources()
-					.getString(R.string.no_output);
+			final String noOutput = Util.getActivity().getResources().getString(R.string.no_output);
 			AsyncTask<String, Void, String> async = new AsyncTask<String, Void, String>() {
 
 				@Override
@@ -56,8 +71,8 @@ public class InputProcess {
 		}
 	}
 
-	public static class Listener implements View.OnKeyListener,
-			View.OnClickListener, VoiceRecHelper.ResultHook {
+	public static class Listener implements View.OnKeyListener, View.OnClickListener,
+			VoiceRecHelper.ResultHook {
 
 		final EditText edit;
 		final DetailFragment fragment;
@@ -72,8 +87,7 @@ public class InputProcess {
 			if (keyCode == KeyEvent.KEYCODE_ENTER) {
 				final String input = edit.getText().toString();
 				edit.setText("");
-				InputProcess.recieveInput(input, new EditTextKeyboardOpener(
-						edit));
+				InputProcess.recieveInput(input, new EditTextKeyboardOpener(edit));
 				return true;
 			} else {
 				return false;

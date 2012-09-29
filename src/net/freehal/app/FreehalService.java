@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -34,22 +51,20 @@ public class FreehalService extends Service {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 	}
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Received start id " + startId + ": " + intent);
-		
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.i(TAG, "Received start id " + startId + ": " + intent);
+
 		setUpAsForeground(this.getResources().getString(R.string.notification_idle));
 
-        return START_STICKY;
-    }
-
+		return START_STICKY;
+	}
 
 	private PendingIntent getPendingIntent() {
-		Intent intent = new Intent(getApplicationContext(),
-				OverviewActivity.class);
+		Intent intent = new Intent(getApplicationContext(), OverviewActivity.class);
 		intent.putExtra("BY_SERVICE", true);
-		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(),
-				0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
 		return pi;
 	}
 
@@ -57,8 +72,7 @@ public class FreehalService extends Service {
 	@SuppressWarnings("deprecation")
 	void updateNotification(String text) {
 		PendingIntent pi = this.getPendingIntent();
-		mNotification.setLatestEventInfo(getApplicationContext(),
-				"FreeHAL", text, pi);
+		mNotification.setLatestEventInfo(getApplicationContext(), "FreeHAL", text, pi);
 		mNotificationManager.notify(NOTIFICATION_ID, mNotification);
 	}
 
@@ -75,8 +89,7 @@ public class FreehalService extends Service {
 		mNotification.tickerText = text;
 		mNotification.icon = R.drawable.ic_launcher;
 		mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-		mNotification.setLatestEventInfo(getApplicationContext(),
-				"FreeHAL", text, pi);
+		mNotification.setLatestEventInfo(getApplicationContext(), "FreeHAL", text, pi);
 		startForeground(NOTIFICATION_ID, mNotification);
 	}
 

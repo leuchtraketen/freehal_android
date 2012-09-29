@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
 import net.freehal.app.select.SelectContent;
@@ -23,8 +39,7 @@ public class OverviewFragment extends SherlockListFragment {
 
 	private static Callbacks sDummyCallbacks = new Callbacks() {
 		@Override
-		public void onItemSelected(String id) {
-		}
+		public void onItemSelected(String id) {}
 	};
 
 	public OverviewFragment() {
@@ -43,10 +58,8 @@ public class OverviewFragment extends SherlockListFragment {
 
 		createAdapter();
 
-		if (savedInstanceState != null
-				&& savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-			setActivatedPosition(savedInstanceState
-					.getInt(STATE_ACTIVATED_POSITION));
+		if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
+			setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
 		} else {
 			setActivatedPosition(1);
 		}
@@ -54,22 +67,18 @@ public class OverviewFragment extends SherlockListFragment {
 
 	void createAdapter() {
 		if (mTwoPane)
-			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(
-					getActivity(),
-					android.R.layout.simple_list_item_activated_1,
-					android.R.id.text1, SelectContent.ITEMS));
+			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(getActivity(),
+					android.R.layout.simple_list_item_activated_1, android.R.id.text1, SelectContent.ITEMS));
 		else
-			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(
-					getActivity(), android.R.layout.simple_list_item_1,
-					android.R.id.text1, SelectContent.ITEMS));
+			setListAdapter(new ArrayAdapter<SelectContent.DummyItem>(getActivity(),
+					android.R.layout.simple_list_item_1, android.R.id.text1, SelectContent.ITEMS));
 	}
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		if (!(activity instanceof Callbacks)) {
-			throw new IllegalStateException(
-					"Activity must implement fragment's callbacks.");
+			throw new IllegalStateException("Activity must implement fragment's callbacks.");
 		}
 
 		mCallbacks = (Callbacks) activity;
@@ -82,8 +91,7 @@ public class OverviewFragment extends SherlockListFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView listView, View view, int position,
-			long id) {
+	public void onListItemClick(ListView listView, View view, int position, long id) {
 		super.onListItemClick(listView, view, position, id);
 		mCallbacks.onItemSelected(SelectContent.ITEMS.get(position).id);
 	}
@@ -98,8 +106,7 @@ public class OverviewFragment extends SherlockListFragment {
 
 	public void setActivateOnItemClick(boolean activateOnItemClick) {
 		getListView().setChoiceMode(
-				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
-						: ListView.CHOICE_MODE_NONE);
+				activateOnItemClick ? ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_NONE);
 	}
 
 	public void setActivatedPosition(int position) {

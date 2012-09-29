@@ -14,33 +14,10 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.compat.android;
 
-import net.freehal.R;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.ListView;
+import net.freehal.compat.sunjava.FileUtilsStandard;
 
-public class AutoScrollListView extends ListView {
-
-	public AutoScrollListView(Context context) {
-		super(context);
-	}
-
-	public AutoScrollListView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
-
-	public AutoScrollListView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
-
-	@Override
-	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-		ListView list = (ListView) this.findViewById(R.id.listView);
-		if (list != null)
-			list.setSelection(list.getAdapter().getCount() - 1);
-	}
+public class FileUtilsAndroid extends FileUtilsStandard {
 
 }

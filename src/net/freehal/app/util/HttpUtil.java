@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app.util;
 
 import java.io.BufferedReader;
@@ -40,8 +56,7 @@ import org.apache.http.params.HttpProtocolParams;
 
 public class HttpUtil {
 
-	public static synchronized String executeHttpGet(String url)
-			throws Exception {
+	public static synchronized String executeHttpGet(String url) throws Exception {
 		String page = "HTTP Error!";
 		BufferedReader in = null;
 		try {
@@ -49,8 +64,7 @@ public class HttpUtil {
 			HttpClient client = getTrustAllHttpClient();
 			HttpGet request = new HttpGet(url);
 			HttpResponse response = client.execute(request);
-			in = new BufferedReader(new InputStreamReader(response.getEntity()
-					.getContent()));
+			in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 			StringBuffer sb = new StringBuffer("");
 			String line = "";
 			String NL = System.getProperty("line.separator");
@@ -74,20 +88,16 @@ public class HttpUtil {
 
 	private static HttpClient getTrustAllHttpClient() {
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory
-				.getSocketFactory(), 80));
-		schemeRegistry.register(new Scheme("https", new EasySSLSocketFactory(),
-				443));
+		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		schemeRegistry.register(new Scheme("https", new EasySSLSocketFactory(), 443));
 
 		HttpParams params = new BasicHttpParams();
 		params.setParameter(ConnManagerPNames.MAX_TOTAL_CONNECTIONS, 30);
-		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE,
-				new ConnPerRouteBean(30));
+		params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRouteBean(30));
 		params.setParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
 		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
-		ClientConnectionManager cm = new SingleClientConnManager(params,
-				schemeRegistry);
+		ClientConnectionManager cm = new SingleClientConnManager(params, schemeRegistry);
 		return new DefaultHttpClient(cm, params);
 	}
 
@@ -98,9 +108,7 @@ public class HttpUtil {
 		private SSLContext createEasySSLContext() throws IOException {
 			try {
 				SSLContext context = SSLContext.getInstance("TLS");
-				context.init(null,
-						new TrustManager[] { new EasyX509TrustManager(null) },
-						null);
+				context.init(null, new TrustManager[] { new EasyX509TrustManager(null) }, null);
 				return context;
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
@@ -119,24 +127,21 @@ public class HttpUtil {
 		 *      java.lang.String, int, java.net.InetAddress, int,
 		 *      org.apache.http.params.HttpParams)
 		 */
-		public Socket connectSocket(Socket sock, String host, int port,
-				InetAddress localAddress, int localPort, HttpParams params)
-				throws IOException, UnknownHostException,
+		public Socket connectSocket(Socket sock, String host, int port, InetAddress localAddress,
+				int localPort, HttpParams params) throws IOException, UnknownHostException,
 				ConnectTimeoutException {
 			int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
 			int soTimeout = HttpConnectionParams.getSoTimeout(params);
 
 			InetSocketAddress remoteAddress = new InetSocketAddress(host, port);
-			SSLSocket sslsock = (SSLSocket) ((sock != null) ? sock
-					: createSocket());
+			SSLSocket sslsock = (SSLSocket) ((sock != null) ? sock : createSocket());
 
 			if ((localAddress != null) || (localPort > 0)) {
 				// we need to bind explicitly
 				if (localPort < 0) {
 					localPort = 0; // indicates "any"
 				}
-				InetSocketAddress isa = new InetSocketAddress(localAddress,
-						localPort);
+				InetSocketAddress isa = new InetSocketAddress(localAddress, localPort);
 				sslsock.bind(isa);
 			}
 
@@ -164,10 +169,9 @@ public class HttpUtil {
 		 * @see org.apache.http.conn.scheme.LayeredSocketFactory#createSocket(java.net.Socket,
 		 *      java.lang.String, int, boolean)
 		 */
-		public Socket createSocket(Socket socket, String host, int port,
-				boolean autoClose) throws IOException, UnknownHostException {
-			return getSSLContext().getSocketFactory().createSocket(socket,
-					host, port, autoClose);
+		public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
+				throws IOException, UnknownHostException {
+			return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
 		}
 
 		// -------------------------------------------------------------------
@@ -177,8 +181,7 @@ public class HttpUtil {
 		// -------------------------------------------------------------------
 
 		public boolean equals(Object obj) {
-			return ((obj != null) && obj.getClass().equals(
-					EasySSLSocketFactory.class));
+			return ((obj != null) && obj.getClass().equals(EasySSLSocketFactory.class));
 		}
 
 		public int hashCode() {
@@ -194,11 +197,10 @@ public class HttpUtil {
 		/**
 		 * Constructor for EasyX509TrustManager.
 		 */
-		public EasyX509TrustManager(KeyStore keystore)
-				throws NoSuchAlgorithmException, KeyStoreException {
+		public EasyX509TrustManager(KeyStore keystore) throws NoSuchAlgorithmException, KeyStoreException {
 			super();
-			TrustManagerFactory factory = TrustManagerFactory
-					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory
+					.getDefaultAlgorithm());
 			factory.init(keystore);
 			TrustManager[] trustmanagers = factory.getTrustManagers();
 			if (trustmanagers.length == 0) {
@@ -212,8 +214,8 @@ public class HttpUtil {
 		 *      javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate
 		 *      [],String authType)
 		 */
-		public void checkClientTrusted(X509Certificate[] certificates,
-				String authType) throws CertificateException {
+		public void checkClientTrusted(X509Certificate[] certificates, String authType)
+				throws CertificateException {
 			standardTrustManager.checkClientTrusted(certificates, authType);
 		}
 
@@ -222,8 +224,8 @@ public class HttpUtil {
 		 *      javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate
 		 *      [],String authType)
 		 */
-		public void checkServerTrusted(X509Certificate[] certificates,
-				String authType) throws CertificateException {
+		public void checkServerTrusted(X509Certificate[] certificates, String authType)
+				throws CertificateException {
 			if ((certificates != null) && (certificates.length == 1)) {
 				certificates[0].checkValidity();
 			} else {

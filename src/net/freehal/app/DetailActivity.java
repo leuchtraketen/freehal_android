@@ -1,5 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.R;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.Util;
 import net.freehal.app.util.VoiceRecHelper;
@@ -23,14 +40,12 @@ public class DetailActivity extends SherlockFragmentActivity {
 		Util.setActivity(this);
 
 		// if (savedInstanceState == null) {
-		final String id = SelectContent.validateId(getIntent().getStringExtra(
-				DetailFragment.ARG_ITEM_ID));
+		final String id = SelectContent.validateId(getIntent().getStringExtra(DetailFragment.ARG_ITEM_ID));
 
 		this.setTitle(SelectContent.ITEM_MAP.get(id).title);
 		DetailFragment fragment = DetailFragment.forTab(id);
 
-		getSupportFragmentManager().beginTransaction()
-				.add(R.id.detail_container, fragment).commit();
+		getSupportFragmentManager().beginTransaction().add(R.id.detail_container, fragment).commit();
 		// }
 	}
 
@@ -38,8 +53,7 @@ public class DetailActivity extends SherlockFragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		if (item.getItemId() == android.R.id.home) {
-			NavUtils.navigateUpTo(this,
-					new Intent(this, OverviewActivity.class));
+			NavUtils.navigateUpTo(this, new Intent(this, OverviewActivity.class));
 			return true;
 		}
 
@@ -48,8 +62,7 @@ public class DetailActivity extends SherlockFragmentActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		OverviewActivity.doCreateOptionsMenu(menu, this,
-				this.getApplicationContext());
+		OverviewActivity.doCreateOptionsMenu(menu, this, this.getApplicationContext());
 		return true;
 	}
 
