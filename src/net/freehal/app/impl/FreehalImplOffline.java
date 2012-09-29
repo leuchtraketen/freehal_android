@@ -20,11 +20,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.freehal.app.compat.android.FileUtilsAndroid;
+import net.freehal.app.compat.android.FreehalConfigAndroid;
+import net.freehal.app.compat.android.LogUtilsAndroid;
 import net.freehal.app.util.ExecuteLater;
 import net.freehal.app.util.Util;
-import net.freehal.compat.android.FileUtilsAndroid;
-import net.freehal.compat.android.FreehalConfigAndroid;
-import net.freehal.compat.android.LogUtilsAndroid;
 import net.freehal.compat.sunjava.LogUtilsStandard;
 import net.freehal.core.answer.AnswerProvider;
 import net.freehal.core.answer.AnswerProviders;
@@ -50,8 +50,8 @@ import net.freehal.core.parser.AbstractParser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.phrase.AbstractPhrase;
 import net.freehal.core.pos.AbstractTagger;
+import net.freehal.core.pos.TaggerCache;
 import net.freehal.core.pos.TaggerCacheDisk;
-import net.freehal.core.pos.TaggerCacheMemory;
 import net.freehal.core.predefined.PredefinedAnswerProvider;
 import net.freehal.core.util.FileUtils;
 import net.freehal.core.util.FreehalConfig;
@@ -94,8 +94,11 @@ public class FreehalImplOffline extends FreehalImpl {
 			@Override
 			protected Void doInBackground(Void... params) {
 
+				// Runtime.getRuntime().
+
 				// unpack the zip file which contains the standard database
-				Util.unpackZip(Util.getActivity().getResources().openRawResource(net.freehal.R.raw.database),
+				Util.unpackZip(
+						Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
 						FreehalConfig.getPath());
 
 				// initialize the grammar
@@ -110,8 +113,9 @@ public class FreehalImplOffline extends FreehalImpl {
 				// the parameter is either a TaggerCacheMemory (faster, higher
 				// memory usage) or a TaggerCacheDisk (slower, less memory
 				// usage)
-				AbstractTagger tagger = FreehalConfig.getLanguage().equals("de") ? new GermanTagger(
-						new TaggerCacheMemory()) : new EnglishTagger(new TaggerCacheDisk());
+				TaggerCache cache = new TaggerCacheDisk();
+				AbstractTagger tagger = FreehalConfig.getLanguage().equals("de") ? new GermanTagger(cache)
+						: new EnglishTagger(cache);
 				tagger.readTagsFrom(new File("guessed.pos"));
 				tagger.readTagsFrom(new File("brain.pos"));
 				tagger.readTagsFrom(new File("memory.pos"));

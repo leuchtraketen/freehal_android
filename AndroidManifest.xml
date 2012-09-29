@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.freehal"
-    android:versionCode="14"
+    package="net.freehal.app"
     android:versionName="0.1.14" >
 
     <uses-sdk
@@ -12,12 +11,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <application
+    <application largeHeap="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".app.OverviewActivity"
+            android:name=".OverviewActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -27,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".app.DetailActivity"
+            android:name=".DetailActivity"
             android:label="@string/title_detail"
             android:launchMode="singleTask" >
             <meta-data
@@ -36,13 +35,13 @@
         </activity>
 
         <service
-            android:name=".app.FreehalService"
+            android:name=".FreehalService"
             android:icon="@drawable/ic_launcher"
             android:logo="@drawable/ic_launcher" >
         </service>
 
         <receiver
-            android:name=".app.FreehalBroadcastReceiver"
+            android:name=".FreehalBroadcastReceiver"
             android:enabled="true"
             android:exported="false"
             android:label="FreehalBroadcastReceiver" >
@@ -52,7 +51,7 @@
         </receiver>
 
         <activity
-            android:name=".app.FreehalPreferences"
+            android:name=".FreehalPreferences"
             android:label="@string/set_preferences" >
         </activity>
     </application>

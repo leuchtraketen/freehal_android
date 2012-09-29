@@ -16,7 +16,7 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
+import net.freehal.app.R;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.Util;
 import net.freehal.app.util.VoiceRecHelper;

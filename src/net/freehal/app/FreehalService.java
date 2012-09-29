@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

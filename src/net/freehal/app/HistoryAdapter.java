@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.text.Html;

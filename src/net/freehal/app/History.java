@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

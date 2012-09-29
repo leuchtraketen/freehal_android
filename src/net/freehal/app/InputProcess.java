@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import java.util.List;
 
 import net.freehal.app.impl.FreehalImpl;

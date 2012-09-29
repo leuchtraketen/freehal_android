@@ -16,7 +16,7 @@
  ******************************************************************************/
 package net.freehal.app.impl;
 
-import net.freehal.R;
+import net.freehal.app.R;
 import net.freehal.app.util.Util;
 import android.accounts.Account;
 import android.accounts.AccountManager;

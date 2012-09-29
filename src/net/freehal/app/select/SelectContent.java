@@ -16,7 +16,7 @@
  ******************************************************************************/
 package net.freehal.app.select;
 
-import net.freehal.R;
+import net.freehal.app.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.SpeechHelper;

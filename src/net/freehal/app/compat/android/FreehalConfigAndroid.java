@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.compat.android;
+package net.freehal.app.compat.android;
 
 import java.io.File;
 import java.util.Locale;

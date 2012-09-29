@@ -16,7 +16,7 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
+import net.freehal.app.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ListView;

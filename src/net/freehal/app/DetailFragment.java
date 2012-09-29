@@ -16,7 +16,7 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
+import net.freehal.app.R;
 import java.util.HashMap;
 
 import net.freehal.app.impl.FreehalImplUtil;

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.compat.android;
+package net.freehal.app.compat.android;
 
 import net.freehal.compat.sunjava.LogUtilsStandard.AbstractLogStream;
 import net.freehal.compat.sunjava.LogUtilsStandard.LogStream;
@@ -33,8 +33,9 @@ public class LogUtilsAndroid {
 		@Override
 		public void add(String type, String msg, StackTraceElement ste) {
 			StringBuilder tag = new StringBuilder();
-			tag.append(StackTraceUtils.lastPackage(ste)).append(".").append(StackTraceUtils.className(ste))
-					.append(":").append(ste.getLineNumber());
+			tag.append("Freehal:").append(StackTraceUtils.lastPackage(ste)).append(".")
+					.append(StackTraceUtils.className(ste)).append(".")
+					.append(StackTraceUtils.methodName(ste)).append(":").append(ste.getLineNumber());
 
 			// remove all carriage returns
 			if (msg.contains("\\r")) {

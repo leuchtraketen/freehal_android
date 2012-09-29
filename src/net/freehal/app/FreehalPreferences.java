@@ -16,7 +16,6 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import net.freehal.R;
 import java.util.ArrayList;
 
 import net.freehal.app.impl.FreehalUser;
