@@ -41,10 +41,13 @@ import net.freehal.core.grammar.AbstractGrammar;
 import net.freehal.core.lang.english.EnglishGrammar;
 import net.freehal.core.lang.english.EnglishParser;
 import net.freehal.core.lang.english.EnglishPhrase;
+import net.freehal.core.lang.english.EnglishPredefinedAnswerProvider;
 import net.freehal.core.lang.english.EnglishTagger;
 import net.freehal.core.lang.german.GermanGrammar;
 import net.freehal.core.lang.german.GermanParser;
 import net.freehal.core.lang.german.GermanPhrase;
+import net.freehal.core.lang.german.GermanPredefinedAnswerProvider;
+import net.freehal.core.lang.german.GermanRandomAnswerProvider;
 import net.freehal.core.lang.german.GermanTagger;
 import net.freehal.core.parser.AbstractParser;
 import net.freehal.core.parser.Sentence;
@@ -52,7 +55,6 @@ import net.freehal.core.phrase.AbstractPhrase;
 import net.freehal.core.pos.AbstractTagger;
 import net.freehal.core.pos.TaggerCache;
 import net.freehal.core.pos.TaggerCacheDisk;
-import net.freehal.core.predefined.PredefinedAnswerProvider;
 import net.freehal.core.util.FileUtils;
 import net.freehal.core.util.FreehalConfig;
 import net.freehal.core.util.LogUtils;
@@ -101,10 +103,11 @@ public class FreehalImplOffline extends FreehalImpl {
 						Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
 						FreehalConfig.getPath());
 
+				final boolean isGerman = FreehalConfig.getLanguage().equals("de");
+
 				// initialize the grammar
 				// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
-				AbstractGrammar grammar = FreehalConfig.getLanguage().equals("de") ? new GermanGrammar()
-						: new EnglishGrammar();
+				AbstractGrammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
 				grammar.readGrammar(new File("grammar.txt"));
 				FreehalConfig.setGrammar(grammar);
 
@@ -114,8 +117,7 @@ public class FreehalImplOffline extends FreehalImpl {
 				// memory usage) or a TaggerCacheDisk (slower, less memory
 				// usage)
 				TaggerCache cache = new TaggerCacheDisk();
-				AbstractTagger tagger = FreehalConfig.getLanguage().equals("de") ? new GermanTagger(cache)
-						: new EnglishTagger(cache);
+				AbstractTagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
 				tagger.readTagsFrom(new File("guessed.pos"));
 				tagger.readTagsFrom(new File("brain.pos"));
 				tagger.readTagsFrom(new File("memory.pos"));
@@ -125,8 +127,7 @@ public class FreehalImplOffline extends FreehalImpl {
 
 				// how to phrase the output sentences
 				// (also possible: EnglishPhrase, GermanPhrase, FakePhrase)
-				AbstractPhrase phrase = FreehalConfig.getLanguage().equals("de") ? new GermanPhrase()
-						: new EnglishPhrase();
+				AbstractPhrase phrase = isGerman ? new GermanPhrase() : new EnglishPhrase();
 				FreehalConfig.setPhrase(phrase);
 
 				// initialize the database
@@ -138,8 +139,13 @@ public class FreehalImplOffline extends FreehalImpl {
 				database.updateCache();
 
 				// Freehal has different ways to find an answer for an input
-				AnswerProviders.getInstance().add(new PredefinedAnswerProvider())
-						.add(new DatabaseAnswerProvider(database)).add(new FakeAnswerProvider());
+				AnswerProviders
+						.getInstance()
+						.add(isGerman ? new GermanPredefinedAnswerProvider()
+								: new EnglishPredefinedAnswerProvider())
+						.add(new DatabaseAnswerProvider(database))
+						.add(isGerman ? new GermanRandomAnswerProvider() : null)
+						.add(new FakeAnswerProvider());
 
 				// fact filters are used to filter the best-matching fact in the
 				// database
