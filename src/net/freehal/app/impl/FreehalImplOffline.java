@@ -133,9 +133,11 @@ public class FreehalImplOffline extends FreehalImpl {
 				// initialize the database
 				// (also possible: DiskDatabase, FakeDatabase)
 				DatabaseImpl database = new DiskDatabase();
+				// set the maximum amount of facts to cache
+				DiskDatabase.setMemoryLimit(500);
+				
 				// while updating the cache, a cache_xy/ directory will be
-				// filled with
-				// information from the database files in lang_xy/
+				// filled with information from the database files in lang_xy/
 				database.updateCache();
 
 				// Freehal has different ways to find an answer for an input
