@@ -21,12 +21,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import net.freehal.core.util.FileUtils;
+import net.freehal.core.util.FreehalFile;
+import net.freehal.core.util.FreehalFiles;
 
 import org.apache.http.util.EncodingUtils;
 
@@ -142,7 +145,7 @@ public class Util {
 		return prefs;
 	}
 
-	public static boolean unpackZip(final File zippath, final File extractTo) {
+	public static boolean unpackZip(final File zippath, final FreehalFile extractTo) {
 		try {
 			return unpackZip(new FileInputStream(zippath), extractTo);
 		} catch (FileNotFoundException e) {
@@ -151,7 +154,7 @@ public class Util {
 		}
 	}
 
-	public static boolean unpackZip(final InputStream zipinput, final File extractTo) {
+	public static boolean unpackZip(final InputStream zipinput, final FreehalFile extractTo) {
 		ZipInputStream zis;
 		try {
 			zis = new ZipInputStream(new BufferedInputStream(zipinput));
@@ -167,18 +170,35 @@ public class Util {
 				if (!filename.endsWith("/")) {
 					Log.i(TAG, "extract zip: " + filename + " in " + extractTo);
 					try {
-						File extractpath = new File(extractTo, filename);
-						extractpath.getParentFile().mkdirs();
-						FileOutputStream fout = new FileOutputStream(extractpath);
-
+						FileUtils.write(extractTo, FreehalFiles.create(filename), "");
+						StringBuilder content = new StringBuilder();
 						while ((count = zis.read(buffer)) != -1) {
 							baos.write(buffer, 0, count);
 							byte[] bytes = baos.toByteArray();
-							fout.write(bytes);
+							content.append(new String(bytes));
 							baos.reset();
+							if (content.length() > 512000) {
+								FileUtils.append(extractTo, FreehalFiles.create(filename), content.toString());
+								content.delete(0, content.length());
+								System.gc();
+							}
 						}
-
-						fout.close();
+						if (content.length() > 0) {
+							FileUtils.append(extractTo, FreehalFiles.create(filename), content.toString());
+						}
+						/**
+						 * File extractpath = new File(extractTo, filename);
+						 * extractpath.getParentFile().mkdirs();
+						 * FileOutputStream fout = new
+						 * FileOutputStream(extractpath);
+						 * 
+						 * while ((count = zis.read(buffer)) != -1) {
+						 * baos.write(buffer, 0, count); byte[] bytes =
+						 * baos.toByteArray(); fout.write(bytes); baos.reset();
+						 * }
+						 * 
+						 * fout.close();
+						 */
 						zis.closeEntry();
 					} catch (IOException e) {
 						e.printStackTrace();

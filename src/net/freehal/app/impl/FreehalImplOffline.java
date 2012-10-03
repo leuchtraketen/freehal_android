@@ -17,17 +17,21 @@
 package net.freehal.app.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-import net.freehal.app.compat.android.FileUtilsAndroid;
-import net.freehal.app.compat.android.FreehalConfigAndroid;
-import net.freehal.app.compat.android.LogUtilsAndroid;
 import net.freehal.app.util.ExecuteLater;
 import net.freehal.app.util.Util;
+import net.freehal.compat.android.FreehalConfigAndroid;
+import net.freehal.compat.android.FreehalFileSqlite;
+import net.freehal.compat.android.LogUtilsAndroid;
+import net.freehal.compat.sunjava.FreehalFileStandard;
 import net.freehal.compat.sunjava.LogUtilsStandard;
 import net.freehal.core.answer.AnswerProvider;
 import net.freehal.core.answer.AnswerProviders;
+import net.freehal.core.cache.DiskStorage;
 import net.freehal.core.database.DatabaseAnswerProvider;
 import net.freehal.core.database.DatabaseImpl;
 import net.freehal.core.database.DiskDatabase;
@@ -55,10 +59,11 @@ import net.freehal.core.phrase.AbstractPhrase;
 import net.freehal.core.pos.AbstractTagger;
 import net.freehal.core.pos.TaggerCache;
 import net.freehal.core.pos.TaggerCacheDisk;
-import net.freehal.core.util.FileUtils;
 import net.freehal.core.util.FreehalConfig;
+import net.freehal.core.util.FreehalFiles;
 import net.freehal.core.util.LogUtils;
 import net.freehal.core.util.StringUtils;
+import android.os.Debug;
 
 public class FreehalImplOffline extends FreehalImpl {
 
@@ -74,8 +79,13 @@ public class FreehalImplOffline extends FreehalImpl {
 	}
 
 	private void init() {
-		// file access
-		FileUtils.set(new FileUtilsAndroid());
+
+		Debug.startMethodTracing("init");
+
+		// file access: use the android sqlite API for all files with
+		// "sqlite://" protocol, and a normal file for all other protocols
+		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, new FreehalFileStandard(null));
+		FreehalFiles.add("sqlite", new FreehalFileSqlite(null));
 
 		// set the language and the base directory (if executed in "bin/", the
 		// base directory is ".."). Freehal expects a "lang_xy" directory there
@@ -85,8 +95,8 @@ public class FreehalImplOffline extends FreehalImpl {
 		// how and where to print the log
 		LogUtilsStandard log = new LogUtilsStandard();
 		log.to(LogUtilsAndroid.AndroidLogStream.create());
-		log.to(LogUtilsStandard.FileLogStream.create(centralLogFile = new File(FreehalConfig.getPath(),
-				"stdout.txt")));
+		log.to(LogUtilsStandard.FileLogStream.create(centralLogFile = new File(FreehalConfig.getPath()
+				.getFile(), "stdout.txt")));
 		LogUtils.set(log);
 
 		ExecuteLater later = new ExecuteLater(0) {
@@ -108,7 +118,7 @@ public class FreehalImplOffline extends FreehalImpl {
 				// initialize the grammar
 				// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
 				AbstractGrammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
-				grammar.readGrammar(new File("grammar.txt"));
+				grammar.readGrammar(FreehalFiles.create("grammar.txt"));
 				FreehalConfig.setGrammar(grammar);
 
 				// initialize the part of speech tagger
@@ -118,11 +128,11 @@ public class FreehalImplOffline extends FreehalImpl {
 				// usage)
 				TaggerCache cache = new TaggerCacheDisk();
 				AbstractTagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
-				tagger.readTagsFrom(new File("guessed.pos"));
-				tagger.readTagsFrom(new File("brain.pos"));
-				tagger.readTagsFrom(new File("memory.pos"));
-				tagger.readRegexFrom(new File("regex.pos"));
-				tagger.readToggleWordsFrom(new File("toggle.csv"));
+				tagger.readTagsFrom(FreehalFiles.create("guessed.pos"));
+				tagger.readTagsFrom(FreehalFiles.create("brain.pos"));
+				tagger.readTagsFrom(FreehalFiles.create("memory.pos"));
+				tagger.readRegexFrom(FreehalFiles.create("regex.pos"));
+				tagger.readToggleWordsFrom(FreehalFiles.create("toggle.csv"));
 				FreehalConfig.setTagger(tagger);
 
 				// how to phrase the output sentences
@@ -134,8 +144,9 @@ public class FreehalImplOffline extends FreehalImpl {
 				// (also possible: DiskDatabase, FakeDatabase)
 				DatabaseImpl database = new DiskDatabase();
 				// set the maximum amount of facts to cache
-				DiskDatabase.setMemoryLimit(500);
-				
+				DiskDatabase.setMemoryLimit(2500);
+				DiskStorage.Key.setGlobalKeyLength(2);
+
 				// while updating the cache, a cache_xy/ directory will be
 				// filled with information from the database files in lang_xy/
 				database.updateCache();
@@ -154,6 +165,8 @@ public class FreehalImplOffline extends FreehalImpl {
 				FactFilters.getInstance().add(new FilterNot()).add(new FilterNoNames())
 						.add(new FilterQuestionWho()).add(new FilterQuestionWhat())
 						.add(new FilterQuestionExtra());
+
+				Debug.stopMethodTracing();
 
 				return null;
 			}
@@ -200,7 +213,12 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	@Override
 	public String getLog() {
-		return FileUtils.read(centralLogFile);
+		try {
+			return new Scanner(centralLogFile).useDelimiter("\\Z").next();
+		} catch (FileNotFoundException e) {
+			LogUtils.e(e);
+			return StringUtils.asString(e);
+		}
 	}
 
 	@Override

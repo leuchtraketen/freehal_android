@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app.compat.android;
+package net.freehal.compat.android;
 
 import java.io.File;
 import java.util.Locale;
@@ -25,28 +25,30 @@ import android.widget.Toast;
 
 import net.freehal.app.util.Util;
 import net.freehal.core.util.FreehalConfigImpl;
+import net.freehal.core.util.FreehalFile;
+import net.freehal.core.util.FreehalFiles;
 
 public class FreehalConfigAndroid implements FreehalConfigImpl {
-	
+
 	private static final String TAG = "FreehalConfigAndroid";
 
 	private String language;
-	private File path;
+	private FreehalFile path;
 
 	public FreehalConfigAndroid() {
 		language = "en";
 		setLanguage(Locale.getDefault().getLanguage());
 		Log.i(TAG, "language: " + language);
-		
+
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			path = Environment.getExternalStorageDirectory();
+			path = FreehalFiles.create(Environment.getExternalStorageDirectory().getPath());
 			path.mkdirs();
 		} else {
 			Toast.makeText(Util.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG);
-			path = Util.getActivity().getApplicationContext().getCacheDir();
+			path = FreehalFiles.create(Util.getActivity().getApplicationContext().getCacheDir().getPath());
 			path.mkdirs();
 		}
-		path = new File(path.getAbsoluteFile(), "freehal");
+		path = FreehalFiles.create(path.getAbsolutePath(), "freehal");
 		path.mkdirs();
 		Log.i(TAG, "path: " + path);
 	}
@@ -63,7 +65,7 @@ public class FreehalConfigAndroid implements FreehalConfigImpl {
 	}
 
 	@Override
-	public File getPath() {
+	public FreehalFile getPath() {
 		return path;
 	}
 
@@ -73,13 +75,13 @@ public class FreehalConfigAndroid implements FreehalConfigImpl {
 	}
 
 	@Override
-	public File getLanguageDirectory() {
-		return new File(path, "lang_" + language + "/").getAbsoluteFile();
+	public FreehalFile getLanguageDirectory() {
+		return FreehalFiles.create(path, "lang_" + language + "/");
 	}
 
 	@Override
-	public File getCacheDirectory() {
-		return new File(path, "cache_" + language + "/").getAbsoluteFile();
+	public FreehalFile getCacheDirectory() {
+		return FreehalFiles.create(path, "cache_" + language + "/");
 	}
 
 }
