@@ -80,7 +80,7 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	private void init() {
 
-		Debug.startMethodTracing("init");
+		//Debug.startMethodTracing("init");
 
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, and a normal file for all other protocols
@@ -166,7 +166,7 @@ public class FreehalImplOffline extends FreehalImpl {
 						.add(new FilterQuestionWho()).add(new FilterQuestionWhat())
 						.add(new FilterQuestionExtra());
 
-				Debug.stopMethodTracing();
+				//Debug.stopMethodTracing();
 
 				return null;
 			}
