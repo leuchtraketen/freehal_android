@@ -7,22 +7,22 @@ import net.freehal.core.util.AbstractFreehalFile;
 import net.freehal.core.util.FileUtilsImpl;
 import net.freehal.core.util.FreehalFile;
 
-public class FreehalFileSqlite extends AbstractFreehalFile {
+public class SqliteFreehalFile extends AbstractFreehalFile {
 
-	private static final FileUtilsImpl util = new FileUtilsSqlite();
+	private static final FileUtilsImpl util = new SqliteFileUtils();
 
-	public FreehalFileSqlite(File file) {
+	public SqliteFreehalFile(File file) {
 		super(file);
 	}
 
 	@Override
 	public FreehalFile create(String path) {
-		return new FreehalFileSqlite(new File(path));
+		return new SqliteFreehalFile(new File(path));
 	}
 
 	@Override
 	public FreehalFile create(String dir, String file) {
-		return new FreehalFileSqlite(new File(dir, file));
+		return new SqliteFreehalFile(new File(dir, file));
 	}
 
 	@Override
@@ -38,22 +38,22 @@ public class FreehalFileSqlite extends AbstractFreehalFile {
 
 	@Override
 	public boolean isDirectory() {
-		return FileUtilsSqlite.getHelper().isDirectory(this);
+		return SqliteFileUtils.getHelper().isDirectory(this);
 	}
 
 	@Override
 	public boolean isFile() {
-		return FileUtilsSqlite.getHelper().isFile(this);
+		return SqliteFileUtils.getHelper().isFile(this);
 	}
 
 	@Override
 	public long length() {
-		return FileUtilsSqlite.getHelper().length(this);
+		return SqliteFileUtils.getHelper().length(this);
 	}
 
 	@Override
 	public FreehalFile[] listFiles() {
-		Collection<FreehalFile> files = FileUtilsSqlite.getHelper().listFiles(this);
+		Collection<FreehalFile> files = SqliteFileUtils.getHelper().listFiles(this);
 		return files.toArray(new FreehalFile[files.size()]);
 	}
 

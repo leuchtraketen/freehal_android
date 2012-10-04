@@ -16,13 +16,13 @@
  ******************************************************************************/
 package net.freehal.compat.android;
 
-import net.freehal.compat.sunjava.LogUtilsStandard.AbstractLogStream;
-import net.freehal.compat.sunjava.LogUtilsStandard.LogStream;
-import net.freehal.compat.sunjava.LogUtilsStandard.StackTraceUtils;
+import net.freehal.compat.sunjava.StandardLogUtils.AbstractLogStream;
+import net.freehal.compat.sunjava.StandardLogUtils.LogStream;
+import net.freehal.compat.sunjava.StandardLogUtils.StackTraceUtils;
 import net.freehal.core.util.RegexUtils;
 import android.util.Log;
 
-public class LogUtilsAndroid {
+public class AndroidLogUtils {
 
 	public static class AndroidLogStream extends AbstractLogStream {
 

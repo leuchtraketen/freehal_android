@@ -24,46 +24,50 @@ import java.util.Scanner;
 
 import net.freehal.app.util.ExecuteLater;
 import net.freehal.app.util.Util;
-import net.freehal.compat.android.FreehalConfigAndroid;
-import net.freehal.compat.android.FreehalFileSqlite;
-import net.freehal.compat.android.LogUtilsAndroid;
-import net.freehal.compat.sunjava.FreehalFileStandard;
-import net.freehal.compat.sunjava.LogUtilsStandard;
+import net.freehal.compat.android.AndroidCompatibility;
+import net.freehal.compat.android.SqliteFreehalFile;
+import net.freehal.compat.android.AndroidLogUtils;
+import net.freehal.compat.sunjava.StandardFreehalFile;
+import net.freehal.compat.sunjava.StandardLogUtils;
 import net.freehal.core.answer.AnswerProvider;
 import net.freehal.core.answer.AnswerProviders;
-import net.freehal.core.cache.DiskStorage;
+import net.freehal.core.database.Database;
 import net.freehal.core.database.DatabaseAnswerProvider;
-import net.freehal.core.database.DatabaseImpl;
 import net.freehal.core.database.DiskDatabase;
+import net.freehal.core.database.DiskStorage;
 import net.freehal.core.filter.FactFilters;
 import net.freehal.core.filter.FilterNoNames;
 import net.freehal.core.filter.FilterNot;
 import net.freehal.core.filter.FilterQuestionExtra;
 import net.freehal.core.filter.FilterQuestionWhat;
 import net.freehal.core.filter.FilterQuestionWho;
-import net.freehal.core.grammar.AbstractGrammar;
+import net.freehal.core.grammar.Grammar;
+import net.freehal.core.grammar.Grammars;
+import net.freehal.core.lang.Languages;
 import net.freehal.core.lang.english.EnglishGrammar;
 import net.freehal.core.lang.english.EnglishParser;
-import net.freehal.core.lang.english.EnglishPhrase;
 import net.freehal.core.lang.english.EnglishPredefinedAnswerProvider;
 import net.freehal.core.lang.english.EnglishTagger;
+import net.freehal.core.lang.english.EnglishWording;
 import net.freehal.core.lang.german.GermanGrammar;
 import net.freehal.core.lang.german.GermanParser;
-import net.freehal.core.lang.german.GermanPhrase;
 import net.freehal.core.lang.german.GermanPredefinedAnswerProvider;
 import net.freehal.core.lang.german.GermanRandomAnswerProvider;
 import net.freehal.core.lang.german.GermanTagger;
+import net.freehal.core.lang.german.GermanWording;
 import net.freehal.core.parser.AbstractParser;
 import net.freehal.core.parser.Sentence;
-import net.freehal.core.phrase.AbstractPhrase;
-import net.freehal.core.pos.AbstractTagger;
-import net.freehal.core.pos.TaggerCache;
-import net.freehal.core.pos.TaggerCacheDisk;
-import net.freehal.core.util.FreehalConfig;
+import net.freehal.core.pos.Tagger;
+import net.freehal.core.pos.Taggers;
+import net.freehal.core.pos.storage.TaggerCache;
+import net.freehal.core.pos.storage.TaggerCacheDisk;
+import net.freehal.core.storage.StandardStorage;
+import net.freehal.core.storage.Storages;
 import net.freehal.core.util.FreehalFiles;
 import net.freehal.core.util.LogUtils;
 import net.freehal.core.util.StringUtils;
-import android.os.Debug;
+import net.freehal.core.wording.Wording;
+import net.freehal.core.wording.Wordings;
 
 public class FreehalImplOffline extends FreehalImpl {
 
@@ -80,23 +84,24 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	private void init() {
 
-		//Debug.startMethodTracing("init");
+		// android.os.Debug.startMethodTracing("init");
 
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, and a normal file for all other protocols
-		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, new FreehalFileStandard(null));
-		FreehalFiles.add("sqlite", new FreehalFileSqlite(null));
+		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, new StandardFreehalFile(null));
+		FreehalFiles.add("sqlite", new SqliteFreehalFile(null));
 
 		// set the language and the base directory (if executed in "bin/", the
 		// base directory is ".."). Freehal expects a "lang_xy" directory there
 		// which contains the database files.
-		FreehalConfig.set(new FreehalConfigAndroid());
+		Languages.setLanguage(AndroidCompatibility.getLanguage());
+		Storages.setStorage(new StandardStorage(AndroidCompatibility.getPath()));
 
 		// how and where to print the log
-		LogUtilsStandard log = new LogUtilsStandard();
-		log.to(LogUtilsAndroid.AndroidLogStream.create());
-		log.to(LogUtilsStandard.FileLogStream.create(centralLogFile = new File(FreehalConfig.getPath()
-				.getFile(), "stdout.txt")));
+		StandardLogUtils log = new StandardLogUtils();
+		log.to(AndroidLogUtils.AndroidLogStream.create());
+		log.to(StandardLogUtils.FileLogStream.create(centralLogFile = new File(Storages.getStorage()
+				.getPath().getFile(), "stdout.txt")));
 		LogUtils.set(log);
 
 		ExecuteLater later = new ExecuteLater(0) {
@@ -111,15 +116,15 @@ public class FreehalImplOffline extends FreehalImpl {
 				// unpack the zip file which contains the standard database
 				Util.unpackZip(
 						Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
-						FreehalConfig.getPath());
+						Storages.getStorage().getPath());
 
-				final boolean isGerman = FreehalConfig.getLanguage().equals("de");
+				final boolean isGerman = Languages.getLanguage().equals("de");
 
 				// initialize the grammar
 				// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
-				AbstractGrammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
+				Grammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
 				grammar.readGrammar(FreehalFiles.create("grammar.txt"));
-				FreehalConfig.setGrammar(grammar);
+				Grammars.setGrammar(grammar);
 
 				// initialize the part of speech tagger
 				// (also possible: EnglishTagger, GermanTagger, FakeTagger)
@@ -127,22 +132,22 @@ public class FreehalImplOffline extends FreehalImpl {
 				// memory usage) or a TaggerCacheDisk (slower, less memory
 				// usage)
 				TaggerCache cache = new TaggerCacheDisk();
-				AbstractTagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
+				Tagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
 				tagger.readTagsFrom(FreehalFiles.create("guessed.pos"));
 				tagger.readTagsFrom(FreehalFiles.create("brain.pos"));
 				tagger.readTagsFrom(FreehalFiles.create("memory.pos"));
 				tagger.readRegexFrom(FreehalFiles.create("regex.pos"));
 				tagger.readToggleWordsFrom(FreehalFiles.create("toggle.csv"));
-				FreehalConfig.setTagger(tagger);
+				Taggers.setTagger(tagger);
 
 				// how to phrase the output sentences
 				// (also possible: EnglishPhrase, GermanPhrase, FakePhrase)
-				AbstractPhrase phrase = isGerman ? new GermanPhrase() : new EnglishPhrase();
-				FreehalConfig.setPhrase(phrase);
+				Wording phrase = isGerman ? new GermanWording() : new EnglishWording();
+				Wordings.setWording(phrase);
 
 				// initialize the database
 				// (also possible: DiskDatabase, FakeDatabase)
-				DatabaseImpl database = new DiskDatabase();
+				Database database = new DiskDatabase();
 				// set the maximum amount of facts to cache
 				DiskDatabase.setMemoryLimit(2500);
 				DiskStorage.Key.setGlobalKeyLength(2);
@@ -166,7 +171,7 @@ public class FreehalImplOffline extends FreehalImpl {
 						.add(new FilterQuestionWho()).add(new FilterQuestionWhat())
 						.add(new FilterQuestionExtra());
 
-				//Debug.stopMethodTracing();
+				// android.os.Debug.stopMethodTracing();
 
 				return null;
 			}
@@ -188,7 +193,7 @@ public class FreehalImplOffline extends FreehalImpl {
 	@Override
 	public void compute() {
 		// also possible: EnglishParser, GermanParser, FakeParser
-		AbstractParser p = FreehalConfig.getLanguage().equals("de") ? new GermanParser(input)
+		AbstractParser p = Languages.getLanguage().isCode("de") ? new GermanParser(input)
 				: new EnglishParser(input);
 
 		// parse the input and get a list of sentences

@@ -16,72 +16,45 @@
  ******************************************************************************/
 package net.freehal.compat.android;
 
-import java.io.File;
 import java.util.Locale;
 
+import net.freehal.app.util.Util;
+import net.freehal.core.lang.Language;
+import net.freehal.core.lang.english.EnglishLanguage;
+import net.freehal.core.lang.german.GermanLanguage;
+import net.freehal.core.util.FreehalFile;
+import net.freehal.core.util.FreehalFiles;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-import net.freehal.app.util.Util;
-import net.freehal.core.util.FreehalConfigImpl;
-import net.freehal.core.util.FreehalFile;
-import net.freehal.core.util.FreehalFiles;
+public class AndroidCompatibility {
 
-public class FreehalConfigAndroid implements FreehalConfigImpl {
+	private static final String TAG = "AndroidCompatibility";
 
-	private static final String TAG = "FreehalConfigAndroid";
-
-	private String language;
-	private FreehalFile path;
-
-	public FreehalConfigAndroid() {
-		language = "en";
-		setLanguage(Locale.getDefault().getLanguage());
+	public static Language getLanguage() {
+		final String language = Locale.getDefault().getLanguage();
 		Log.i(TAG, "language: " + language);
+		if (language.equals("de"))
+			return new GermanLanguage();
+		else
+			return new EnglishLanguage();
+	}
 
+	public static FreehalFile getPath() {
+		FreehalFile path;
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			path = FreehalFiles.create(Environment.getExternalStorageDirectory().getPath());
 			path.mkdirs();
 		} else {
-			Toast.makeText(Util.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG);
+			Toast.makeText(Util.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG)
+					.show();
 			path = FreehalFiles.create(Util.getActivity().getApplicationContext().getCacheDir().getPath());
 			path.mkdirs();
 		}
 		path = FreehalFiles.create(path.getAbsolutePath(), "freehal");
 		path.mkdirs();
 		Log.i(TAG, "path: " + path);
-	}
-
-	@Override
-	public String getLanguage() {
-		return language;
-	}
-
-	public FreehalConfigAndroid setLanguage(String language) {
-		if (language.equals("de") || language.equals("en"))
-			this.language = language;
-		return this;
-	}
-
-	@Override
-	public FreehalFile getPath() {
 		return path;
 	}
-
-	public FreehalConfigAndroid setPath(File path) {
-		// not supported on Android
-		return this;
-	}
-
-	@Override
-	public FreehalFile getLanguageDirectory() {
-		return FreehalFiles.create(path, "lang_" + language + "/");
-	}
-
-	@Override
-	public FreehalFile getCacheDirectory() {
-		return FreehalFiles.create(path, "cache_" + language + "/");
-	}
-
 }

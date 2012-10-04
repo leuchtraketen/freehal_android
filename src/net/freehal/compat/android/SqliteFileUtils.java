@@ -34,7 +34,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class FileUtilsSqlite implements FileUtilsImpl {
+public class SqliteFileUtils implements FileUtilsImpl {
 
 	private static FreehalSqlHelper helper = null;
 
@@ -44,7 +44,7 @@ public class FileUtilsSqlite implements FileUtilsImpl {
 		}
 	}
 
-	public FileUtilsSqlite() {}
+	public SqliteFileUtils() {}
 
 	@Override
 	public void append(FreehalFile filename, String content) {
