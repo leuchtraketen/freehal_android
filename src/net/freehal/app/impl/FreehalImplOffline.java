@@ -55,7 +55,7 @@ import net.freehal.core.lang.german.GermanPredefinedAnswerProvider;
 import net.freehal.core.lang.german.GermanRandomAnswerProvider;
 import net.freehal.core.lang.german.GermanTagger;
 import net.freehal.core.lang.german.GermanWording;
-import net.freehal.core.parser.AbstractParser;
+import net.freehal.core.parser.Parser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.pos.Tagger;
 import net.freehal.core.pos.Taggers;
@@ -100,8 +100,8 @@ public class FreehalImplOffline extends FreehalImpl {
 		// how and where to print the log
 		StandardLogUtils log = new StandardLogUtils();
 		log.to(AndroidLogUtils.AndroidLogStream.create());
-		log.to(StandardLogUtils.FileLogStream.create(centralLogFile = new File(Storages.getStorage()
-				.getPath().getFile(), "stdout.txt")));
+		log.to(StandardLogUtils.FileLogStream
+				.create(centralLogFile = Storages.inPath("stdout.txt").getFile()));
 		LogUtils.set(log);
 
 		ExecuteLater later = new ExecuteLater(0) {
@@ -116,14 +116,14 @@ public class FreehalImplOffline extends FreehalImpl {
 				// unpack the zip file which contains the standard database
 				Util.unpackZip(
 						Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
-						Storages.getStorage().getPath());
+						Storages.getPath());
 
 				final boolean isGerman = Languages.getLanguage().equals("de");
 
 				// initialize the grammar
 				// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
 				Grammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
-				grammar.readGrammar(FreehalFiles.create("grammar.txt"));
+				grammar.readGrammar(FreehalFiles.getFile("grammar.txt"));
 				Grammars.setGrammar(grammar);
 
 				// initialize the part of speech tagger
@@ -133,11 +133,11 @@ public class FreehalImplOffline extends FreehalImpl {
 				// usage)
 				TaggerCache cache = new TaggerCacheDisk();
 				Tagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
-				tagger.readTagsFrom(FreehalFiles.create("guessed.pos"));
-				tagger.readTagsFrom(FreehalFiles.create("brain.pos"));
-				tagger.readTagsFrom(FreehalFiles.create("memory.pos"));
-				tagger.readRegexFrom(FreehalFiles.create("regex.pos"));
-				tagger.readToggleWordsFrom(FreehalFiles.create("toggle.csv"));
+				tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
+				tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
+				tagger.readTagsFrom(FreehalFiles.getFile("memory.pos"));
+				tagger.readRegexFrom(FreehalFiles.getFile("regex.pos"));
+				tagger.readToggleWordsFrom(FreehalFiles.getFile("toggle.csv"));
 				Taggers.setTagger(tagger);
 
 				// how to phrase the output sentences
@@ -193,8 +193,7 @@ public class FreehalImplOffline extends FreehalImpl {
 	@Override
 	public void compute() {
 		// also possible: EnglishParser, GermanParser, FakeParser
-		AbstractParser p = Languages.getLanguage().isCode("de") ? new GermanParser(input)
-				: new EnglishParser(input);
+		Parser p = Languages.getLanguage().isCode("de") ? new GermanParser(input) : new EnglishParser(input);
 
 		// parse the input and get a list of sentences
 		final List<Sentence> inputParts = p.getSentences();

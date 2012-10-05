@@ -44,15 +44,15 @@ public class AndroidCompatibility {
 	public static FreehalFile getPath() {
 		FreehalFile path;
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			path = FreehalFiles.create(Environment.getExternalStorageDirectory().getPath());
+			path = FreehalFiles.getFile(Environment.getExternalStorageDirectory().getPath());
 			path.mkdirs();
 		} else {
 			Toast.makeText(Util.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG)
 					.show();
-			path = FreehalFiles.create(Util.getActivity().getApplicationContext().getCacheDir().getPath());
+			path = FreehalFiles.getFile(Util.getActivity().getApplicationContext().getCacheDir().getPath());
 			path.mkdirs();
 		}
-		path = FreehalFiles.create(path.getAbsolutePath(), "freehal");
+		path = path.getChild("freehal");
 		path.mkdirs();
 		Log.i(TAG, "path: " + path);
 		return path;

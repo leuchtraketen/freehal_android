@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.freehal.core.util.FileUtils;
 import net.freehal.core.util.FreehalFile;
-import net.freehal.core.util.FreehalFiles;
 
 import org.apache.http.util.EncodingUtils;
 
@@ -170,7 +168,7 @@ public class Util {
 				if (!filename.endsWith("/")) {
 					Log.i(TAG, "extract zip: " + filename + " in " + extractTo);
 					try {
-						FileUtils.write(extractTo, FreehalFiles.create(filename), "");
+						extractTo.getChild(filename).write("");
 						StringBuilder content = new StringBuilder();
 						while ((count = zis.read(buffer)) != -1) {
 							baos.write(buffer, 0, count);
@@ -178,13 +176,13 @@ public class Util {
 							content.append(new String(bytes));
 							baos.reset();
 							if (content.length() > 512000) {
-								FileUtils.append(extractTo, FreehalFiles.create(filename), content.toString());
+								extractTo.getChild(filename).append(content.toString());
 								content.delete(0, content.length());
 								System.gc();
 							}
 						}
 						if (content.length() > 0) {
-							FileUtils.append(extractTo, FreehalFiles.create(filename), content.toString());
+							extractTo.getChild(filename).append(content.toString());
 						}
 						/**
 						 * File extractpath = new File(extractTo, filename);
