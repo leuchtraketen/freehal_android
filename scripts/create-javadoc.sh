@@ -28,9 +28,8 @@ pwd
 
 export JAVA_HOME=$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
 export doclet="-doclet com.google.doclava.Doclava -docletpath $(dirname $0)/doclava-1.0.6.jar -bootclasspath $JAVA_HOME/jre/lib/rt.jar"
-echo $doclet
+export federate='-federate Android http://developer.android.com/reference -federationxml Android http://doclava.googlecode.com/svn/static/api/android-10.xml'
 mkdir -p $2/
-javadoc -hdf project.name "FreeHAL Android App" -d $2/ $doclet $(find $1/src $1/gen -name "*.java") \
-	-classpath .:$2:$(for x in $(find libs -name "*.jar"); do echo -n ":$x"; done) \
-	-federate Android http://developer.android.com/reference -federationxml Android http://doclava.googlecode.com/svn/static/api/android-10.xml
+javadoc -hdf project.name "FreeHAL Android App" -d $2/ $doclet $federate $(find $1/src $1/gen -name "*.java") \
+	-classpath .:$2:$(for x in $(find libs -name "*.jar"); do echo -n ":$x"; done)
 
