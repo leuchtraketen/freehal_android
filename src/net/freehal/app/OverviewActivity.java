@@ -42,7 +42,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
 
-		Util.setActivity(this);
+		Util.setActivity(this, OverviewActivity.class);
 		FreehalUser.init(this.getApplicationContext());
 		SpeechHelper.getInstance().start();
 

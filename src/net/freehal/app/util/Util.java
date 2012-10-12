@@ -44,6 +44,7 @@ public class Util {
 	private static final String TAG = "Util";
 
 	private static Activity activity;
+	private static Class<?> activityClass;
 
 	public static String toAscii(String str) {
 		byte[] dirty = EncodingUtils.getBytes(str, "UTF-8");
@@ -122,12 +123,17 @@ public class Util {
 		return packageInfo;
 	}
 
-	public static void setActivity(Activity activity) {
+	public static void setActivity(Activity activity, Class<?> activityClass) {
 		Util.activity = activity;
+		Util.activityClass = activityClass;
 	}
 
 	public static Activity getActivity() {
 		return activity;
+	}
+
+	public static Class<?> getActivityClass() {
+		return activityClass;
 	}
 
 	public static String getString(int s) {

@@ -23,18 +23,22 @@ import java.util.List;
 import java.util.Scanner;
 
 import net.freehal.app.util.ExecuteLater;
+import net.freehal.app.util.Progress;
+import net.freehal.app.util.ProgressNotification;
 import net.freehal.app.util.Util;
 import net.freehal.compat.android.AndroidCompatibility;
-import net.freehal.compat.android.SqliteFreehalFile;
 import net.freehal.compat.android.AndroidLogUtils;
+import net.freehal.compat.android.SqliteFreehalFile;
 import net.freehal.compat.sunjava.StandardFreehalFile;
 import net.freehal.compat.sunjava.StandardLogUtils;
 import net.freehal.core.answer.AnswerProvider;
 import net.freehal.core.answer.AnswerProviders;
 import net.freehal.core.database.Database;
 import net.freehal.core.database.DatabaseAnswerProvider;
-import net.freehal.core.database.DiskDatabase;
-import net.freehal.core.database.DiskStorage;
+import net.freehal.core.database.DirectoryUtils;
+import net.freehal.core.database.FactIndex;
+import net.freehal.core.database.StandardDatabase;
+import net.freehal.core.database.SynonymIndex;
 import net.freehal.core.filter.FactFilters;
 import net.freehal.core.filter.FilterNoNames;
 import net.freehal.core.filter.FilterNot;
@@ -68,28 +72,37 @@ import net.freehal.core.util.LogUtils;
 import net.freehal.core.util.StringUtils;
 import net.freehal.core.wording.Wording;
 import net.freehal.core.wording.Wordings;
+import net.freehal.core.xml.FactProviders;
+import net.freehal.core.xml.SynonymProviders;
+import net.freehal.plugin.wikipedia.GermanWikipedia;
+import net.freehal.plugin.wikipedia.WikipediaPlugin;
 
 public class FreehalImplOffline extends FreehalImpl {
 
 	private static FreehalImplOffline instance;
 
 	private File centralLogFile = null;
+	private boolean isInitialized = false;
 
 	private String input;
 	private String output;
 
-	private FreehalImplOffline() {
-		init();
-	}
+	private FreehalImplOffline() {}
 
 	private void init() {
+		final ProgressNotification noti = new ProgressNotification();
+		noti.create();
+		Progress.addImplementation(noti);
+		Progress.registerProgressListener();
+
+		DirectoryUtils.Key.setGlobalKeyLength(2);
 
 		// android.os.Debug.startMethodTracing("init");
 
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, and a normal file for all other protocols
-		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, new StandardFreehalFile(null));
-		FreehalFiles.add("sqlite", new SqliteFreehalFile(null));
+		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, StandardFreehalFile.newFactory());
+		FreehalFiles.add("sqlite", SqliteFreehalFile.newFactory());
 
 		// set the language and the base directory (if executed in "bin/", the
 		// base directory is ".."). Freehal expects a "lang_xy" directory there
@@ -104,79 +117,102 @@ public class FreehalImplOffline extends FreehalImpl {
 				.create(centralLogFile = Storages.inPath("stdout.txt").getFile()));
 		LogUtils.set(log);
 
-		ExecuteLater later = new ExecuteLater(0) {
-			@Override
-			public void run() {}
+		// ExecuteLater later = new ExecuteLater(0) {
+		// @Override
+		// public void run() {}
+		//
+		// @Override
+		// protected Void doInBackground(Void... params) {
 
-			@Override
-			protected Void doInBackground(Void... params) {
+		Progress.update(1, "unpacking internal database files to sdcard...");
 
-				// Runtime.getRuntime().
+		// unpack the zip file which contains the standard database
+		Util.unpackZip(Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
+				Storages.getPath());
 
-				// unpack the zip file which contains the standard database
-				Util.unpackZip(
-						Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
-						Storages.getPath());
+		Progress.update(5, "initializing grammar...");
 
-				final boolean isGerman = Languages.getLanguage().equals("de");
+		final boolean isGerman = Languages.getLanguage().equals("de");
 
-				// initialize the grammar
-				// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
-				Grammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
-				grammar.readGrammar(FreehalFiles.getFile("grammar.txt"));
-				Grammars.setGrammar(grammar);
+		// initialize the grammar
+		// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
+		Grammar grammar = isGerman ? new GermanGrammar() : new EnglishGrammar();
+		grammar.readGrammar(FreehalFiles.getFile("grammar.txt"));
+		Grammars.setGrammar(grammar);
 
-				// initialize the part of speech tagger
-				// (also possible: EnglishTagger, GermanTagger, FakeTagger)
-				// the parameter is either a TaggerCacheMemory (faster, higher
-				// memory usage) or a TaggerCacheDisk (slower, less memory
-				// usage)
-				TaggerCache cache = new TaggerCacheDisk();
-				Tagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
-				tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
-				tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
-				tagger.readTagsFrom(FreehalFiles.getFile("memory.pos"));
-				tagger.readRegexFrom(FreehalFiles.getFile("regex.pos"));
-				tagger.readToggleWordsFrom(FreehalFiles.getFile("toggle.csv"));
-				Taggers.setTagger(tagger);
+		Progress.update(6, "initializing part of speech tagger...");
 
-				// how to phrase the output sentences
-				// (also possible: EnglishPhrase, GermanPhrase, FakePhrase)
-				Wording phrase = isGerman ? new GermanWording() : new EnglishWording();
-				Wordings.setWording(phrase);
+		// initialize the part of speech tagger
+		// (also possible: EnglishTagger, GermanTagger, FakeTagger)
+		// the parameter is either a TaggerCacheMemory (faster, higher
+		// memory usage) or a TaggerCacheDisk (slower, less memory
+		// usage)
+		TaggerCache cache = new TaggerCacheDisk();
+		Tagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
+		tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
+		tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
+		tagger.readTagsFrom(FreehalFiles.getFile("memory.pos"));
+		tagger.readRegexFrom(FreehalFiles.getFile("regex.pos"));
+		tagger.readToggleWordsFrom(FreehalFiles.getFile("toggle.csv"));
+		Taggers.setTagger(tagger);
 
-				// initialize the database
-				// (also possible: DiskDatabase, FakeDatabase)
-				Database database = new DiskDatabase();
-				// set the maximum amount of facts to cache
-				DiskDatabase.setMemoryLimit(2500);
-				DiskStorage.Key.setGlobalKeyLength(2);
+		Progress.update(5, "updating database cache...");
+		Progress.enableProgressListener(10, 90);
 
-				// while updating the cache, a cache_xy/ directory will be
-				// filled with information from the database files in lang_xy/
-				database.updateCache();
+		// how to phrase the output sentences
+		// (also possible: EnglishPhrase, GermanPhrase, FakePhrase)
+		Wording phrase = isGerman ? new GermanWording() : new EnglishWording();
+		Wordings.setWording(phrase);
 
-				// Freehal has different ways to find an answer for an input
-				AnswerProviders
-						.getInstance()
-						.add(isGerman ? new GermanPredefinedAnswerProvider()
-								: new EnglishPredefinedAnswerProvider())
-						.add(new DatabaseAnswerProvider(database))
-						.add(isGerman ? new GermanRandomAnswerProvider() : null)
-						.add(new FakeAnswerProvider());
+		// we need to store facts...
+		FactIndex facts = new FactIndex();
+		// ... and synonyms
+		SynonymIndex synonyms = new SynonymIndex();
+		// add both to their utility classes
+		FactProviders.addFactProvider(facts);
+		SynonymProviders.addSynonymProvider(synonyms);
+		// both are components of a database!
+		Database database = new StandardDatabase();
+		database.addComponent(facts);
+		database.addComponent(synonyms);
+		// update the cache of that database...
+		// while updating the cache, a cache_xy/ directory will be
+		// filled with
+		// information from the database files in lang_xy/
+		database.updateCache();
 
-				// fact filters are used to filter the best-matching fact in the
-				// database
-				FactFilters.getInstance().add(new FilterNot()).add(new FilterNoNames())
-						.add(new FilterQuestionWho()).add(new FilterQuestionWhat())
-						.add(new FilterQuestionExtra());
+		Progress.disableProgressListener();
+		Progress.updateProgress(95);
+		Progress.update(5, "set up plugins...");
 
-				// android.os.Debug.stopMethodTracing();
+		// the Wikipedia plugin is a FactProvider too!
+		WikipediaPlugin wikipedia = new WikipediaPlugin(new GermanWikipedia());
+		FactProviders.addFactProvider(wikipedia);
 
-				return null;
-			}
-		};
-		later.execute();
+		// Freehal has different ways to find an answer for an input
+		AnswerProviders.add(isGerman ? new GermanPredefinedAnswerProvider()
+				: new EnglishPredefinedAnswerProvider());
+		AnswerProviders.add(wikipedia);
+		AnswerProviders.add(new DatabaseAnswerProvider(facts));
+		AnswerProviders.add(isGerman ? new GermanRandomAnswerProvider() : null);
+		AnswerProviders.add(new FakeAnswerProvider());
+
+		// fact filters are used to filter the best-matching fact in the
+		// database
+		FactFilters.getInstance().add(new FilterNot()).add(new FilterNoNames()).add(new FilterQuestionWho())
+				.add(new FilterQuestionWhat()).add(new FilterQuestionExtra());
+
+		// android.os.Debug.stopMethodTracing();
+
+		Progress.updateProgress(100);
+		noti.destroy();
+
+		isInitialized = true;
+
+		// return null;
+		// }
+		// };
+		// later.execute();
 	}
 
 	public static FreehalImpl getInstance() {
@@ -192,6 +228,14 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	@Override
 	public void compute() {
+		/*
+		 * while (!isInitialized) { try { Thread.sleep(2000); } catch
+		 * (InterruptedException e) { LogUtils.e(e); } }
+		 */
+
+		if (!isInitialized)
+			init();
+
 		// also possible: EnglishParser, GermanParser, FakeParser
 		Parser p = Languages.getLanguage().isCode("de") ? new GermanParser(input) : new EnglishParser(input);
 
@@ -202,7 +246,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		// for each sentence...
 		for (Sentence s : inputParts) {
 			// get the answer using the AnswerProvider API
-			outputParts.add(AnswerProviders.getInstance().getAnswer(s));
+			outputParts.add(AnswerProviders.getAnswer(s));
 		}
 		// put all answers together
 		output = StringUtils.join(" ", outputParts);

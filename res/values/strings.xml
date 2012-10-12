@@ -39,5 +39,6 @@
     <string name="pref_clear">Reset</string>
     <string name="pref_clear_summary">Reset all preferences to default values</string>
     <string name="pref_clear_toast">All preferences have been reset</string>
+    <string name="progressnotification">Progress</string>
 
 </resources>

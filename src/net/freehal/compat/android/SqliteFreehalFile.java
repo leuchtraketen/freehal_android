@@ -1,12 +1,28 @@
+/*******************************************************************************
+ * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
+ * 
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU General Public License along with
+ * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
+ ******************************************************************************/
 package net.freehal.compat.android;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import net.freehal.app.util.Util;
 import net.freehal.core.util.AbstractFreehalFile;
+import net.freehal.core.util.Factory;
 import net.freehal.core.util.FreehalFile;
 
 public class SqliteFreehalFile extends AbstractFreehalFile {
@@ -19,13 +35,17 @@ public class SqliteFreehalFile extends AbstractFreehalFile {
 		}
 	}
 
-	public SqliteFreehalFile(File file) {
+	private SqliteFreehalFile(File file) {
 		super(file);
 	}
 
-	@Override
-	public FreehalFile getFile(String path) {
-		return new SqliteFreehalFile(new File(path));
+	public static Factory<FreehalFile, String> newFactory() {
+		return new Factory<FreehalFile, String>() {
+			@Override
+			public FreehalFile newInstance(String b) {
+				return new SqliteFreehalFile(new File(b));
+			}
+		};
 	}
 
 	@Override
@@ -95,12 +115,6 @@ public class SqliteFreehalFile extends AbstractFreehalFile {
 
 	@Override
 	public Iterable<String> readLines() {
-		init();
-		return Arrays.asList(helper.read(this).split("[\r\n]+"));
-	}
-
-	@Override
-	public List<String> readLinesAsList() {
 		init();
 		return Arrays.asList(helper.read(this).split("[\r\n]+"));
 	}

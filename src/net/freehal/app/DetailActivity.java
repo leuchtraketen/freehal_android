@@ -37,7 +37,7 @@ public class DetailActivity extends SherlockFragmentActivity {
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Util.setActivity(this);
+		Util.setActivity(this, DetailActivity.class);
 
 		// if (savedInstanceState == null) {
 		final String id = SelectContent.validateId(getIntent().getStringExtra(DetailFragment.ARG_ITEM_ID));

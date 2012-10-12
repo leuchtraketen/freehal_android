@@ -18,11 +18,7 @@ package net.freehal.app.impl;
 
 public class FreehalImplUtil {
 
-	private static String current;
-
-	static {
-		current = "online";
-	}
+	private static String current = "online";
 
 	public static FreehalImpl getInstance(String item) {
 		final FreehalImpl impl;
