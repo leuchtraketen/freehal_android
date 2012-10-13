@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.freehal.app.impl.FreehalImplUtil;
+import net.freehal.app.impl.FreehalImpls;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.util.Util;
 import android.annotation.SuppressLint;
@@ -65,7 +65,7 @@ public class History {
 	}
 
 	public static History getInstance() {
-		return getInstance(FreehalImplUtil.getCurrent());
+		return getInstance(FreehalImpls.getCurrent());
 	}
 
 	private History(String item_id) {

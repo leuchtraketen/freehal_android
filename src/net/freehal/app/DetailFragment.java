@@ -19,7 +19,7 @@ package net.freehal.app;
 import net.freehal.app.R;
 import java.util.HashMap;
 
-import net.freehal.app.impl.FreehalImplUtil;
+import net.freehal.app.impl.FreehalImpls;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.Util;
 import net.freehal.app.util.VoiceRecHelper;
@@ -117,7 +117,7 @@ public class DetailFragment extends SherlockFragment {
 			tab = savedInstanceState.getString("tab");
 		tab = SelectContent.validateId(tab);
 
-		FreehalImplUtil.setCurrent(tab);
+		FreehalImpls.setCurrent(tab);
 
 		final View rootView;
 		if (tab.equals("online") || tab.equals("offline")) {
@@ -243,8 +243,8 @@ public class DetailFragment extends SherlockFragment {
 		final String htmlAbout = getResources().getString(R.string.about_text);
 		final String appVersionName = "Version "
 				+ Util.getVersion(this.getActivity().getApplicationContext()).versionName;
-		final String onlineVersionName = FreehalImplUtil.getInstance("online").getVersionName();
-		final String offlineVersionName = FreehalImplUtil.getInstance("offline").getVersionName();
+		final String onlineVersionName = FreehalImpls.getInstance("online").getVersionName();
+		final String offlineVersionName = FreehalImpls.getInstance("offline").getVersionName();
 
 		((TextView) rootView.findViewById(R.id.about_detail)).setText(Html.fromHtml(String.format(htmlAbout,
 				appVersionName, onlineVersionName, offlineVersionName)));
@@ -259,7 +259,7 @@ public class DetailFragment extends SherlockFragment {
 		// ((TextView)
 		// rootView.findViewById(R.id.log_heading)).setText(R.string.tab_log);
 
-		final String log = FreehalImplUtil.getInstance().getLog();
+		final String log = FreehalImpls.getInstance().getLog();
 		TextView view = (TextView) rootView.findViewById(R.id.log_detail);
 		if (log == null || log.length() == 0)
 			view.setText(Html.fromHtml(getResources().getString(R.string.no_log)));
@@ -275,7 +275,7 @@ public class DetailFragment extends SherlockFragment {
 
 		View rootView = inflater.inflate(R.layout.fragment_graph_detail, container, false);
 
-		final String graph = FreehalImplUtil.getInstance().getGraph();
+		final String graph = FreehalImpls.getInstance().getGraph();
 		WebView view = (WebView) rootView.findViewById(R.id.graph_detail);
 		if (graph == null || graph.length() < 1000)
 			view.loadData(getResources().getString(R.string.no_graph), "text/html", null);

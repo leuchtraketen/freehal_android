@@ -27,6 +27,12 @@ public class FreehalImplOnline extends FreehalImpl {
 
 	private static FreehalImplOnline instance;
 
+	public static FreehalImpl getInstance() {
+		if (instance == null)
+			instance = new FreehalImplOnline();
+		return instance;
+	}
+
 	private String input;
 	private String output;
 	private String log;
@@ -35,13 +41,11 @@ public class FreehalImplOnline extends FreehalImpl {
 
 	private FreehalImplOnline() {
 		version = -1;
-		retrieveVersion();
 	}
 
-	public static FreehalImpl getInstance() {
-		if (instance == null)
-			instance = new FreehalImplOnline();
-		return instance;
+	@Override
+	public void initialize() {
+		retrieveVersion();
 	}
 
 	@Override

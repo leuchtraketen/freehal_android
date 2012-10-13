@@ -32,4 +32,6 @@ public abstract class FreehalImpl {
 
 	public abstract int getVersionCode();
 
+	public abstract void initialize();
+
 }

@@ -19,7 +19,7 @@ package net.freehal.app;
 import java.util.List;
 
 import net.freehal.app.impl.FreehalImpl;
-import net.freehal.app.impl.FreehalImplUtil;
+import net.freehal.app.impl.FreehalImpls;
 import net.freehal.app.util.SpeechHelper;
 import net.freehal.app.util.Util;
 import net.freehal.app.util.VoiceRecHelper;
@@ -45,7 +45,7 @@ public class InputProcess {
 				@Override
 				protected String doInBackground(String... arg0) {
 					System.out.println("input: " + input);
-					final FreehalImpl impl = FreehalImplUtil.getInstance();
+					final FreehalImpl impl = FreehalImpls.getInstance();
 					impl.setInput(input);
 					impl.compute();
 					String output = impl.getOutput();

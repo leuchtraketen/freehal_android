@@ -22,7 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import net.freehal.app.util.ProgressNotification;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+
+import net.freehal.app.FreehalService;
 import net.freehal.app.util.Util;
 import net.freehal.compat.android.AndroidCompatibility;
 import net.freehal.compat.android.AndroidLogUtils;
@@ -61,10 +67,11 @@ import net.freehal.core.parser.Parser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.pos.Tagger;
 import net.freehal.core.pos.Taggers;
-import net.freehal.core.pos.storage.TaggerCache;
-import net.freehal.core.pos.storage.TaggerCacheDisk;
+import net.freehal.core.pos.storage.DiskTagReader;
+import net.freehal.core.pos.storage.TagContainer;
 import net.freehal.core.storage.StandardStorage;
 import net.freehal.core.storage.Storages;
+import net.freehal.core.util.Factory;
 import net.freehal.core.util.FreehalFile;
 import net.freehal.core.util.FreehalFiles;
 import net.freehal.core.util.LogUtils;
@@ -80,19 +87,22 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	private static FreehalImplOffline instance;
 
+	public static FreehalImpl getInstance() {
+		if (instance == null)
+			instance = new FreehalImplOffline();
+		return instance;
+	}
+
+	FreehalService mService = null;
+	boolean mBound = false;
+
 	private File centralLogFile = null;
 	private boolean isInitialized = false;
 
 	private String input;
 	private String output;
 
-	private FreehalImplOffline() {}
-
-	private void init() {
-		DirectoryUtils.Key.setGlobalKeyLength(2);
-
-		// android.os.Debug.startMethodTracing("init");
-
+	private FreehalImplOffline() {
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, and a normal file for all other protocols
 		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, StandardFreehalFile.newFactory());
@@ -110,12 +120,12 @@ public class FreehalImplOffline extends FreehalImpl {
 		log.to(StandardLogUtils.FileLogStream
 				.create(centralLogFile = Storages.inPath("stdout.txt").getFile()));
 		LogUtils.set(log);
+	}
 
+	public synchronized void initialize() {
 		// now, as logging and file system stuff is set up, start the real
 		// initialization process!
-
-		final ProgressNotification noti = new ProgressNotification();
-		noti.create();
+		bind();
 		LogUtils.startProgress("init");
 
 		LogUtils.updateProgress("unpacking internal database files to sdcard...");
@@ -148,8 +158,8 @@ public class FreehalImplOffline extends FreehalImpl {
 		// the parameter is either a TaggerCacheMemory (faster, higher
 		// memory usage) or a TaggerCacheDisk (slower, less memory
 		// usage)
-		TaggerCache cache = new TaggerCacheDisk();
-		Tagger tagger = isGerman ? new GermanTagger(cache) : new EnglishTagger(cache);
+		Factory<TagContainer, String> cacheFactory = DiskTagReader.newFactory();
+		Tagger tagger = isGerman ? new GermanTagger(cacheFactory) : new EnglishTagger(cacheFactory);
 		tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
 		tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
 		tagger.readTagsFrom(FreehalFiles.getFile("memory.pos"));
@@ -175,6 +185,8 @@ public class FreehalImplOffline extends FreehalImpl {
 		Database database = new StandardDatabase();
 		database.addComponent(facts);
 		database.addComponent(synonyms);
+		// set the default key size for the database cache indices
+		DirectoryUtils.Key.setGlobalKeyLength(2);
 		// update the cache of that database...
 		// while updating the cache, a cache_xy/ directory will be
 		// filled with
@@ -202,16 +214,26 @@ public class FreehalImplOffline extends FreehalImpl {
 
 		// android.os.Debug.stopMethodTracing();
 
-		noti.destroy();
+		unbind();
 		LogUtils.stopProgress();
 
 		isInitialized = true;
 	}
 
-	public static FreehalImpl getInstance() {
-		if (instance == null)
-			instance = new FreehalImplOffline();
-		return instance;
+	private synchronized void bind() {
+		// Bind to FreehalService
+		Intent intent = new Intent(Util.getActivity().getApplicationContext(), FreehalService.class);
+		Util.getActivity().getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		while (!mBound)
+			Util.sleep(1000);
+	}
+
+	private synchronized void unbind() {
+		// Unbind from FreehalService
+		if (mBound) {
+			Util.getActivity().getApplicationContext().unbindService(mConnection);
+			mBound = false;
+		}
 	}
 
 	@Override
@@ -220,14 +242,13 @@ public class FreehalImplOffline extends FreehalImpl {
 	}
 
 	@Override
-	public void compute() {
-		/*
-		 * while (!isInitialized) { try { Thread.sleep(2000); } catch
-		 * (InterruptedException e) { LogUtils.e(e); } }
-		 */
-
+	public synchronized void compute() {
 		if (!isInitialized)
-			init();
+			initialize();
+
+		bind();
+		LogUtils.startProgress("answer");
+		LogUtils.updateProgress("find an answer for \"" + input + "\"");
 
 		// also possible: EnglishParser, GermanParser, FakeParser
 		Parser p = Languages.getLanguage().isCode("de") ? new GermanParser(input) : new EnglishParser(input);
@@ -245,6 +266,9 @@ public class FreehalImplOffline extends FreehalImpl {
 		output = StringUtils.join(" ", outputParts);
 		LogUtils.i("Input: " + input);
 		LogUtils.i("Output: " + output);
+
+		LogUtils.stopProgress();
+		unbind();
 	}
 
 	@Override
@@ -254,12 +278,15 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	@Override
 	public String getLog() {
-		try {
-			return new Scanner(centralLogFile).useDelimiter("\\Z").next();
-		} catch (FileNotFoundException e) {
-			LogUtils.e(e);
-			return StringUtils.asString(e);
+		if (centralLogFile != null) {
+			try {
+				return new Scanner(centralLogFile).useDelimiter("\\Z").next();
+			} catch (FileNotFoundException e) {
+				LogUtils.e(e);
+				return StringUtils.asString(e);
+			}
 		}
+		return "";
 	}
 
 	@Override
@@ -276,6 +303,24 @@ public class FreehalImplOffline extends FreehalImpl {
 	public int getVersionCode() {
 		return -1;
 	}
+
+	/** Defines callbacks for service binding, passed to bindService() */
+	private ServiceConnection mConnection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			// We've bound to LocalService, cast the IBinder and get
+			// LocalService instance
+			FreehalService.LocalBinder binder = (FreehalService.LocalBinder) service;
+			mService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			mBound = false;
+		}
+	};
 }
 
 class FakeAnswerProvider implements AnswerProvider {

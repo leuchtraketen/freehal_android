@@ -236,4 +236,13 @@ public class Util {
 		}
 		return result;
 	}
+
+	public static void sleep(int i) {
+		long endTime = System.currentTimeMillis() + 5 * 1000;
+		while (System.currentTimeMillis() < endTime) {
+			try {
+				Thread.sleep(endTime - System.currentTimeMillis());
+			} catch (Exception e) {}
+		}
+	}
 }

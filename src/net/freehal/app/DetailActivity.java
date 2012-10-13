@@ -46,7 +46,6 @@ public class DetailActivity extends SherlockFragmentActivity {
 		DetailFragment fragment = DetailFragment.forTab(id);
 
 		getSupportFragmentManager().beginTransaction().add(R.id.detail_container, fragment).commit();
-		// }
 	}
 
 	@Override

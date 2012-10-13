@@ -16,6 +16,7 @@
  ******************************************************************************/
 package net.freehal.app;
 
+import net.freehal.app.impl.FreehalImpls;
 import net.freehal.app.impl.FreehalUser;
 import net.freehal.app.select.SelectContent;
 import net.freehal.app.util.SpeechHelper;
@@ -44,6 +45,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 
 		Util.setActivity(this, OverviewActivity.class);
 		FreehalUser.init(this.getApplicationContext());
+		FreehalImpls.initialize();
 		SpeechHelper.getInstance().start();
 
 		if (findViewById(R.id.detail_container) != null) {
@@ -58,6 +60,8 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 		Intent intent = getIntent();
 		String action = intent.getAction();
 		String type = intent.getType();
+		
+		this.startService(new Intent(this, FreehalService.class));
 
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
 			if ("text/plain".equals(type)) {
@@ -68,8 +72,6 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 		} else {
 			launch(savedInstanceState);
 		}
-
-		this.startService(new Intent(this, FreehalService.class));
 	}
 
 	public void launch(Bundle savedInstanceState) {

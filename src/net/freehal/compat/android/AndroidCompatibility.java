@@ -24,6 +24,7 @@ import net.freehal.core.lang.english.EnglishLanguage;
 import net.freehal.core.lang.german.GermanLanguage;
 import net.freehal.core.util.FreehalFile;
 import net.freehal.core.util.FreehalFiles;
+import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ public class AndroidCompatibility {
 			return new EnglishLanguage();
 	}
 
+	@SuppressLint("ShowToast")
 	public static FreehalFile getPath() {
 		FreehalFile path;
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {

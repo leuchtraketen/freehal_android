@@ -16,22 +16,25 @@
  ******************************************************************************/
 package net.freehal.app.impl;
 
-public class FreehalImplUtil {
+import java.util.HashMap;
+import java.util.Map;
 
-	private static String current = "online";
+public class FreehalImpls {
 
-	public static FreehalImpl getInstance(String item) {
-		final FreehalImpl impl;
-		if (item.equals("online")) {
-			current = item;
-			impl = FreehalImplOnline.getInstance();
-		} else if (item.equals("offline")) {
-			current = item;
-			impl = FreehalImplOffline.getInstance();
-		} else {
-			impl = null;
-		}
-		return impl;
+	private static Map<String, FreehalImpl> impls;
+	private static String current;
+	static {
+		impls = new HashMap<String, FreehalImpl>();
+		impls.put("offline", FreehalImplOffline.getInstance());
+		impls.put("online", FreehalImplOnline.getInstance());
+		current = "offline";
+	}
+
+	public static FreehalImpl getInstance(String key) {
+		if (impls.containsKey(key))
+			return impls.get(key);
+		else
+			return null;
 	}
 
 	public static FreehalImpl getInstance() {
@@ -44,7 +47,13 @@ public class FreehalImplUtil {
 
 	public static void setCurrent(String current) {
 		if (current.equals("online") || current.equals("offline")) {
-			FreehalImplUtil.current = current;
+			FreehalImpls.current = current;
 		}
 	}
+
+	/**
+	 * This is run at the very beginning of the application to ensure that the
+	 * static variables of this class are initialized...
+	 */
+	public static void initialize() {}
 }

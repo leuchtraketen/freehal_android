@@ -16,47 +16,131 @@
  ******************************************************************************/
 package net.freehal.app;
 
-import android.app.Notification;
+import net.freehal.core.util.LogUtils;
+import net.freehal.core.util.LogUtils.ProgressListener;
+
+import com.jakewharton.notificationcompat2.NotificationCompat2;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 public class FreehalService extends Service {
 
 	final static String TAG = "FreehalService";
+	private NotificationManager mNotifyManager = null;
+	private NotificationCompat2.Builder mBuilder = null;
+	// Binder given to clients
+	private final IBinder mBinder = new LocalBinder();
 
-	// The ID we use for the notification (the onscreen alert that appears at
-	// the notification
-	// area at the top of the screen as an icon -- and as text as well if the
-	// user expands the
-	// notification area).
-	final int NOTIFICATION_ID = 1;
+	private int generation = -1;
+	private double max = 1;
+	private double current = 0;
+	private String text = null;
+	private String idleText = null;
 
-	NotificationManager mNotificationManager;
-	Notification mNotification = null;
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
+	final int NOTIFICATION_ID = 42789;
 
 	@Override
 	public void onCreate() {
 		Log.i(TAG, "debug: Creating service");
 
-		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		idleText = this.getResources().getString(R.string.notification_idle);
+
+		mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		mBuilder = new NotificationCompat2.Builder(this);
+		mBuilder.setContentTitle("FreeHAL").setContentText(idleText).setSmallIcon(R.drawable.ic_launcher);
+		mBuilder.setContentIntent(getPendingIntent());
+		mBuilder.setOngoing(true);
+
+		LogUtils.addProgressListener(new ProgressListener() {
+
+			@Override
+			public void onProgressUpdate(double current, double max, String text) {
+				updateProgress(current, max, text);
+			}
+
+			@Override
+			public void onProgressBeginning() {
+				create();
+			}
+
+			@Override
+			public void onProgressEnd() {
+				Log.e("FreehalService", "destroy()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				destroy();
+			}
+
+			@Override
+			public void onSubProgressBeginning() {}
+
+			@Override
+			public void onSubProgressEnd() {}
+		});
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i(TAG, "Received start id " + startId + ": " + intent);
 
-		setUpAsForeground(this.getResources().getString(R.string.notification_idle));
+		startForeground(NOTIFICATION_ID, mBuilder.build());
 
 		return START_STICKY;
+	}
+
+	private void create() {
+		++generation;
+		new Thread() {
+			@Override
+			public void run() {
+				int n = 1;
+				int myGeneration = generation;
+				while (myGeneration == generation) {
+
+					mBuilder.setProgress((int) (max * 1000), (int) (current * 1000), false);
+					final double progress = current / max;
+					if (text != null) {
+						double progressToPrint = (int) (progress * 100 * 1000) / (double) (1000);
+						mBuilder.setContentText(text + " (" + progressToPrint + "%)");
+						LogUtils.i("progress=" + progress + ", text=" + text + " (" + progressToPrint + "%)");
+					} else
+						LogUtils.i("progress=" + progress + ", text=" + text);
+					mBuilder.setNumber(n++);
+
+					// inform the progress bar of updates in progress
+					mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+				mBuilder.setContentText(idleText).setNumber(n++);
+				mBuilder.setProgress(1, 1, false);
+				
+				// inform the progress bar of updates in progress
+				mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
+			}
+		}.start();
+	}
+	
+	private void destroy() {
+		generation++;
+	}
+
+	public void updateProgress(double current, double max, String text) {
+		if (max > 0) {
+			this.max = max;
+			this.current = current;
+		}
+		if (text != null)
+			this.text = text;
 	}
 
 	private PendingIntent getPendingIntent() {
@@ -67,29 +151,16 @@ public class FreehalService extends Service {
 		return pi;
 	}
 
-	/** Updates the notification. */
-	@SuppressWarnings("deprecation")
-	void updateNotification(String text) {
-		PendingIntent pi = this.getPendingIntent();
-		mNotification.setLatestEventInfo(getApplicationContext(), "FreeHAL", text, pi);
-		mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+	@Override
+	public IBinder onBind(Intent intent) {
+		return mBinder;
 	}
 
-	/**
-	 * Configures service as a foreground service. A foreground service is a
-	 * service that's doing something the user is actively aware of (such as
-	 * playing music), and must appear to the user as a notification. That's why
-	 * we create the notification here.
-	 */
-	@SuppressWarnings("deprecation")
-	void setUpAsForeground(String text) {
-		PendingIntent pi = this.getPendingIntent();
-		mNotification = new Notification();
-		mNotification.tickerText = text;
-		mNotification.icon = R.drawable.ic_launcher;
-		mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-		mNotification.setLatestEventInfo(getApplicationContext(), "FreeHAL", text, pi);
-		startForeground(NOTIFICATION_ID, mNotification);
+	public class LocalBinder extends Binder {
+		public FreehalService getService() {
+			// Return this instance of LocalService so clients can call public
+			// methods
+			return FreehalService.this;
+		}
 	}
-
 }
