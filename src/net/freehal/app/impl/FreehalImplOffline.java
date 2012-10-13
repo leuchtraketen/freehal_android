@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import net.freehal.app.util.ExecuteLater;
-import net.freehal.app.util.Progress;
 import net.freehal.app.util.ProgressNotification;
 import net.freehal.app.util.Util;
 import net.freehal.compat.android.AndroidCompatibility;
@@ -67,6 +65,7 @@ import net.freehal.core.pos.storage.TaggerCache;
 import net.freehal.core.pos.storage.TaggerCacheDisk;
 import net.freehal.core.storage.StandardStorage;
 import net.freehal.core.storage.Storages;
+import net.freehal.core.util.FreehalFile;
 import net.freehal.core.util.FreehalFiles;
 import net.freehal.core.util.LogUtils;
 import net.freehal.core.util.StringUtils;
@@ -90,11 +89,6 @@ public class FreehalImplOffline extends FreehalImpl {
 	private FreehalImplOffline() {}
 
 	private void init() {
-		final ProgressNotification noti = new ProgressNotification();
-		noti.create();
-		Progress.addImplementation(noti);
-		Progress.registerProgressListener();
-
 		DirectoryUtils.Key.setGlobalKeyLength(2);
 
 		// android.os.Debug.startMethodTracing("init");
@@ -117,20 +111,27 @@ public class FreehalImplOffline extends FreehalImpl {
 				.create(centralLogFile = Storages.inPath("stdout.txt").getFile()));
 		LogUtils.set(log);
 
-		// ExecuteLater later = new ExecuteLater(0) {
-		// @Override
-		// public void run() {}
-		//
-		// @Override
-		// protected Void doInBackground(Void... params) {
+		// now, as logging and file system stuff is set up, start the real
+		// initialization process!
 
-		Progress.update(1, "unpacking internal database files to sdcard...");
+		final ProgressNotification noti = new ProgressNotification();
+		noti.create();
+		LogUtils.startProgress("init");
 
-		// unpack the zip file which contains the standard database
-		Util.unpackZip(Util.getActivity().getResources().openRawResource(net.freehal.app.R.raw.database),
-				Storages.getPath());
+		LogUtils.updateProgress("unpacking internal database files to sdcard...");
 
-		Progress.update(5, "initializing grammar...");
+		final String thisVersion = "1";
+		// check whether the standard database files have been unpacked
+		FreehalFile versionFile = Storages.getPath().getChild(".version");
+		final String currentVersion = versionFile.read();
+		if (currentVersion == null || !thisVersion.equals(currentVersion)) {
+			// unpack the zip file which contains the standard database
+			Util.unpackZip(net.freehal.app.R.raw.database, Storages.getPath());
+			// write the version file
+			versionFile.write(thisVersion);
+		}
+
+		LogUtils.updateProgress("initializing grammar...");
 
 		final boolean isGerman = Languages.getLanguage().equals("de");
 
@@ -140,7 +141,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		grammar.readGrammar(FreehalFiles.getFile("grammar.txt"));
 		Grammars.setGrammar(grammar);
 
-		Progress.update(6, "initializing part of speech tagger...");
+		LogUtils.updateProgress("initializing part of speech tagger...");
 
 		// initialize the part of speech tagger
 		// (also possible: EnglishTagger, GermanTagger, FakeTagger)
@@ -156,8 +157,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		tagger.readToggleWordsFrom(FreehalFiles.getFile("toggle.csv"));
 		Taggers.setTagger(tagger);
 
-		Progress.update(5, "updating database cache...");
-		Progress.enableProgressListener(10, 90);
+		LogUtils.updateProgress("updating database cache...");
 
 		// how to phrase the output sentences
 		// (also possible: EnglishPhrase, GermanPhrase, FakePhrase)
@@ -181,9 +181,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		// information from the database files in lang_xy/
 		database.updateCache();
 
-		Progress.disableProgressListener();
-		Progress.updateProgress(95);
-		Progress.update(5, "set up plugins...");
+		LogUtils.updateProgress("set up plugins...");
 
 		// the Wikipedia plugin is a FactProvider too!
 		WikipediaPlugin wikipedia = new WikipediaPlugin(new GermanWikipedia());
@@ -204,15 +202,10 @@ public class FreehalImplOffline extends FreehalImpl {
 
 		// android.os.Debug.stopMethodTracing();
 
-		Progress.updateProgress(100);
 		noti.destroy();
+		LogUtils.stopProgress();
 
 		isInitialized = true;
-
-		// return null;
-		// }
-		// };
-		// later.execute();
 	}
 
 	public static FreehalImpl getInstance() {

@@ -28,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.freehal.core.util.FreehalFile;
+import net.freehal.core.util.LogUtils;
 
 import org.apache.http.util.EncodingUtils;
 
@@ -159,7 +160,9 @@ public class Util {
 	}
 
 	public static boolean unpackZip(final InputStream zipinput, final FreehalFile extractTo) {
-		ZipInputStream zis;
+		LogUtils.startProgress("unpacking database files");
+
+		ZipInputStream zis = null;
 		try {
 			zis = new ZipInputStream(new BufferedInputStream(zipinput));
 			ZipEntry ze;
@@ -190,6 +193,8 @@ public class Util {
 						if (content.length() > 0) {
 							extractTo.getChild(filename).append(content.toString());
 						}
+						LogUtils.updateProgress();
+
 						/**
 						 * File extractpath = new File(extractTo, filename);
 						 * extractpath.getParentFile().mkdirs();
@@ -205,7 +210,8 @@ public class Util {
 						 */
 						zis.closeEntry();
 					} catch (IOException e) {
-						e.printStackTrace();
+						LogUtils.e(e);
+						LogUtils.stopProgress();
 						return false;
 					}
 				}
@@ -213,10 +219,21 @@ public class Util {
 
 			zis.close();
 		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+			LogUtils.e(e);
 		}
 
+		LogUtils.stopProgress();
 		return true;
+	}
+
+	public static boolean unpackZip(int zipId, FreehalFile path) {
+		InputStream stream = Util.getActivity().getResources().openRawResource(zipId);
+		boolean result = unpackZip(stream, path);
+		try {
+			stream.close();
+		} catch (IOException e) {
+			LogUtils.e(e);
+		}
+		return result;
 	}
 }

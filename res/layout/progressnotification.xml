@@ -14,8 +14,7 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_toRightOf="@id/status_icon"
-        android:padding="15dp" >
+        android:layout_toRightOf="@id/status_icon">
 
         <TextView
             android:id="@+id/status_text"
