@@ -122,14 +122,14 @@ public class FreehalService extends Service {
 				}
 
 				mBuilder.setContentText(idleText).setNumber(n++);
-				mBuilder.setProgress(1, 1, false);
-				
+				mBuilder.setProgress(0, 0, false);
+
 				// inform the progress bar of updates in progress
 				mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
 			}
 		}.start();
 	}
-	
+
 	private void destroy() {
 		generation++;
 	}
