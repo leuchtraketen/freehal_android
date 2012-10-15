@@ -33,6 +33,7 @@ import net.freehal.app.util.Util;
 import net.freehal.compat.android.AndroidCompatibility;
 import net.freehal.compat.android.AndroidLogUtils;
 import net.freehal.compat.android.SqliteFreehalFile;
+import net.freehal.compat.android.SqliteTagTable;
 import net.freehal.compat.sunjava.StandardFreehalFile;
 import net.freehal.compat.sunjava.StandardLogUtils;
 import net.freehal.core.answer.AnswerProvider;
@@ -67,7 +68,7 @@ import net.freehal.core.parser.Parser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.pos.Tagger;
 import net.freehal.core.pos.Taggers;
-import net.freehal.core.pos.storage.DiskTagReader;
+import net.freehal.core.pos.storage.DiskTagCachedReader;
 import net.freehal.core.pos.storage.TagContainer;
 import net.freehal.core.storage.StandardStorage;
 import net.freehal.core.storage.Storages;
@@ -158,7 +159,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		// the parameter is either a TaggerCacheMemory (faster, higher
 		// memory usage) or a TaggerCacheDisk (slower, less memory
 		// usage)
-		Factory<TagContainer, String> cacheFactory = DiskTagReader.newFactory();
+		Factory<TagContainer, String> cacheFactory = SqliteTagTable.newFactory();
 		Tagger tagger = isGerman ? new GermanTagger(cacheFactory) : new EnglishTagger(cacheFactory);
 		tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
 		tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));

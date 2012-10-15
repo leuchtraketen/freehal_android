@@ -27,11 +27,11 @@ import net.freehal.core.util.FreehalFile;
 
 public class SqliteFreehalFile extends AbstractFreehalFile {
 
-	private static FreehalSqliteHelper helper = null;
+	private static FreehalFileSqliteHelper helper = null;
 
 	private void init() {
 		if (helper == null) {
-			helper = new FreehalSqliteHelper(Util.getActivity().getApplicationContext());
+			helper = new FreehalFileSqliteHelper(Util.getActivity().getApplicationContext());
 		}
 	}
 
@@ -125,4 +125,14 @@ public class SqliteFreehalFile extends AbstractFreehalFile {
 		helper.write(this, content);
 	}
 
+	@Override
+	public int countLines() {
+		int countOfLines = 0;
+		Iterable<String> lines = readLines();
+		for (@SuppressWarnings("unused")
+		String line : lines) {
+			++countOfLines;
+		}
+		return countOfLines;
+	}
 }
