@@ -22,19 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-
 import net.freehal.app.FreehalService;
 import net.freehal.app.util.Util;
 import net.freehal.compat.android.AndroidCompatibility;
 import net.freehal.compat.android.AndroidLogUtils;
-import net.freehal.compat.android.SqliteFreehalFile;
-import net.freehal.compat.android.SqliteTagTable;
+import net.freehal.compat.android.SqliteFile;
 import net.freehal.compat.sunjava.StandardFreehalFile;
+import net.freehal.compat.sunjava.StandardHttpClient;
 import net.freehal.compat.sunjava.StandardLogUtils;
 import net.freehal.core.answer.AnswerProvider;
 import net.freehal.core.answer.AnswerProviders;
@@ -68,8 +62,11 @@ import net.freehal.core.parser.Parser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.pos.Tagger;
 import net.freehal.core.pos.Taggers;
-import net.freehal.core.pos.storage.DiskTagCachedReader;
+import net.freehal.core.pos.Tags;
 import net.freehal.core.pos.storage.TagContainer;
+import net.freehal.core.pos.storage.TagDatabase;
+import net.freehal.core.storage.KeyValueDatabase;
+import net.freehal.core.storage.Serializer;
 import net.freehal.core.storage.StandardStorage;
 import net.freehal.core.storage.Storages;
 import net.freehal.core.util.Factory;
@@ -81,8 +78,17 @@ import net.freehal.core.wording.Wording;
 import net.freehal.core.wording.Wordings;
 import net.freehal.core.xml.FactProviders;
 import net.freehal.core.xml.SynonymProviders;
+import net.freehal.core.xml.XmlFact;
+import net.freehal.plugin.berkeleydb.BerkeleyDb;
+import net.freehal.plugin.berkeleydb.BerkeleyFile;
 import net.freehal.plugin.wikipedia.GermanWikipedia;
+import net.freehal.plugin.wikipedia.WikipediaClient;
 import net.freehal.plugin.wikipedia.WikipediaPlugin;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 
 public class FreehalImplOffline extends FreehalImpl {
 
@@ -105,9 +111,13 @@ public class FreehalImplOffline extends FreehalImpl {
 
 	private FreehalImplOffline() {
 		// file access: use the android sqlite API for all files with
-		// "sqlite://" protocol, and a normal file for all other protocols
+		// "sqlite://" protocol, a Berkeley DB for the berkeley:// protocol and
+		// a real file for all other protocols
 		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, StandardFreehalFile.newFactory());
-		FreehalFiles.add("sqlite", SqliteFreehalFile.newFactory());
+		FreehalFiles.add("sqlite", SqliteFile.newFactory());
+		FreehalFiles.add("berkeley", BerkeleyFile.newFactory());
+		FreehalFiles.add("http", StandardHttpClient.newFactory());
+		FreehalFiles.add("wikipedia", WikipediaClient.newFactory());
 
 		// set the language and the base directory (if executed in "bin/", the
 		// base directory is ".."). Freehal expects a "lang_xy" directory there
@@ -154,12 +164,19 @@ public class FreehalImplOffline extends FreehalImpl {
 
 		LogUtils.updateProgress("initializing part of speech tagger...");
 
+		// this database is shared by several classes for storing metadata
+		KeyValueDatabase<String> meta = new BerkeleyDb<String>(Storages.getCacheDirectory().getChild("meta"),
+				new Serializer.StringSerializer());
+
 		// initialize the part of speech tagger
 		// (also possible: EnglishTagger, GermanTagger, FakeTagger)
 		// the parameter is either a TaggerCacheMemory (faster, higher
 		// memory usage) or a TaggerCacheDisk (slower, less memory
 		// usage)
-		Factory<TagContainer, String> cacheFactory = SqliteTagTable.newFactory();
+		KeyValueDatabase<Tags> tags = new BerkeleyDb<Tags>(Storages.getCacheDirectory().getChild("tagger"),
+				new Tags.StringSerializer());
+		Factory<TagContainer, String> cacheFactory = TagDatabase.newFactory(tags, meta);
+
 		Tagger tagger = isGerman ? new GermanTagger(cacheFactory) : new EnglishTagger(cacheFactory);
 		tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
 		tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
@@ -176,7 +193,9 @@ public class FreehalImplOffline extends FreehalImpl {
 		Wordings.setWording(phrase);
 
 		// we need to store facts...
-		FactIndex facts = new FactIndex();
+		KeyValueDatabase<Iterable<XmlFact>> factsCache = new BerkeleyDb<Iterable<XmlFact>>(Storages
+				.getCacheDirectory().getChild("database/facts"), new XmlFact.StringSerializer());
+		FactIndex facts = new FactIndex(factsCache);
 		// ... and synonyms
 		SynonymIndex synonyms = new SynonymIndex();
 		// add both to their utility classes

@@ -25,7 +25,7 @@ import net.freehal.core.util.AbstractFreehalFile;
 import net.freehal.core.util.Factory;
 import net.freehal.core.util.FreehalFile;
 
-public class SqliteFreehalFile extends AbstractFreehalFile {
+public class SqliteFile extends AbstractFreehalFile {
 
 	private static FreehalFileSqliteHelper helper = null;
 
@@ -35,7 +35,7 @@ public class SqliteFreehalFile extends AbstractFreehalFile {
 		}
 	}
 
-	private SqliteFreehalFile(File file) {
+	private SqliteFile(File file) {
 		super(file);
 	}
 
@@ -43,19 +43,19 @@ public class SqliteFreehalFile extends AbstractFreehalFile {
 		return new Factory<FreehalFile, String>() {
 			@Override
 			public FreehalFile newInstance(String b) {
-				return new SqliteFreehalFile(new File(b));
+				return new SqliteFile(new File(b));
 			}
 		};
 	}
 
 	@Override
 	public FreehalFile getChild(String file) {
-		return new SqliteFreehalFile(new File(this.getAbsolutePath(), file));
+		return new SqliteFile(new File(this.getAbsolutePath(), file));
 	}
 
 	@Override
 	public FreehalFile getChild(FreehalFile file) {
-		return new SqliteFreehalFile(new File(this.getAbsolutePath(), file.getPath()));
+		return new SqliteFile(new File(this.getAbsolutePath(), file.getPath()));
 	}
 
 	@Override
