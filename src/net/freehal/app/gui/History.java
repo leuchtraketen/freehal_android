@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,9 +30,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.freehal.app.impl.FreehalImpls;
-import net.freehal.app.impl.FreehalUser;
-import net.freehal.app.util.Util;
+import net.freehal.app.R;
+import net.freehal.app.util.FreehalAdapters;
+import net.freehal.app.util.FreehalUser;
+import net.freehal.app.util.AndroidUtils;
 import android.annotation.SuppressLint;
 import android.text.Html;
 import android.widget.ScrollView;
@@ -65,7 +66,7 @@ public class History {
 	}
 
 	public static History getInstance() {
-		return getInstance(FreehalImpls.getCurrent());
+		return getInstance(FreehalAdapters.getCurrent());
 	}
 
 	private History(String item_id) {
@@ -81,7 +82,7 @@ public class History {
 
 	public int addInput(String input, String ref) {
 		restore();
-		final String user = FreehalUser.get().getUserName(Util.getString(R.string.person_user));
+		final String user = FreehalUser.get().getUserName(AndroidUtils.getString(R.string.person_user));
 		name.add(tag(user, "b", ""));
 		text.add(input);
 		reference.add(ref);
@@ -100,7 +101,7 @@ public class History {
 	}
 
 	private File getStorageFile(final String column) {
-		return new File(Util.getActivity().getCacheDir(), "history_" + item_id + "_" + column);
+		return new File(AndroidUtils.getActivity().getCacheDir(), "history_" + item_id + "_" + column);
 	}
 
 	private void save() {
@@ -238,7 +239,7 @@ public class History {
 	}
 
 	public int size() {
-		return Util.min(text.size(), name.size(), reference.size());
+		return AndroidUtils.min(text.size(), name.size(), reference.size());
 	}
 
 	public void setHook(HistoryHook hook) {

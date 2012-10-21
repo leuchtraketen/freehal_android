@@ -18,7 +18,7 @@ package net.freehal.compat.android;
 
 import java.util.Locale;
 
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.core.lang.Language;
 import net.freehal.core.lang.english.EnglishLanguage;
 import net.freehal.core.lang.german.GermanLanguage;
@@ -49,9 +49,9 @@ public class AndroidCompatibility {
 			path = FreehalFiles.getFile(Environment.getExternalStorageDirectory().getPath());
 			path.mkdirs();
 		} else {
-			Toast.makeText(Util.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG)
+			Toast.makeText(AndroidUtils.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG)
 					.show();
-			path = FreehalFiles.getFile(Util.getActivity().getApplicationContext().getCacheDir().getPath());
+			path = FreehalFiles.getFile(AndroidUtils.getActivity().getApplicationContext().getCacheDir().getPath());
 			path.mkdirs();
 		}
 		path = path.getChild("freehal");

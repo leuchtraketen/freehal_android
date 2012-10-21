@@ -38,7 +38,7 @@ public class SpeechHelper implements OnInitListener {
 
 	public void start() {
 		ready = false;
-		tts = new TextToSpeech(Util.getActivity().getApplicationContext(), this);
+		tts = new TextToSpeech(AndroidUtils.getActivity().getApplicationContext(), this);
 	}
 
 	public void say(String text) {
@@ -61,7 +61,7 @@ public class SpeechHelper implements OnInitListener {
 
 				Intent installTTSIntent = new Intent();
 				installTTSIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-				Util.getActivity().startActivity(installTTSIntent);
+				AndroidUtils.getActivity().startActivity(installTTSIntent);
 
 				result = tts.setLanguage(Locale.ENGLISH);
 			}

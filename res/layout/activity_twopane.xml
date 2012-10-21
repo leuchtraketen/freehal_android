@@ -7,7 +7,7 @@
     android:layout_marginRight="16dp"
     tools:context=".OverviewActivity">
 
-    <fragment android:name="net.freehal.app.OverviewFragment"
+    <fragment android:name="net.freehal.app.gui.OverviewFragment"
         android:id="@+id/list"
         android:layout_width="0dp"
         android:layout_height="match_parent"

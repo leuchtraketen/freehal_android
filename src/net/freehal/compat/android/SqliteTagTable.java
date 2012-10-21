@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.core.pos.Tags;
 import net.freehal.core.pos.storage.MemoryTagContainer;
 import net.freehal.core.pos.storage.TagContainer;
@@ -26,7 +26,7 @@ public class SqliteTagTable extends MemoryTagContainer implements TagContainer {
 
 	public SqliteTagTable(String name) {
 		this.name = name;
-		helper = new TagMapSqliteHelper(Util.getActivity().getApplicationContext(), name);
+		helper = new TagMapSqliteHelper(AndroidUtils.getActivity().getApplicationContext(), name);
 	}
 
 	@Override

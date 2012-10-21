@@ -8,13 +8,13 @@
     android:padding="16dp"
     tools:context=".DetailFragment" >
 
-    <net.freehal.app.AutoScrollListView
+    <net.freehal.app.gui.AutoScrollListView
         android:id="@+id/listView"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         android:transcriptMode="alwaysScroll" >
-    </net.freehal.app.AutoScrollListView>
+    </net.freehal.app.gui.AutoScrollListView>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"

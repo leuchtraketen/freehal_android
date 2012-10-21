@@ -14,24 +14,30 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app.impl;
+package net.freehal.app.util;
 
-public abstract class FreehalImpl {
+import android.os.AsyncTask;
 
-	public abstract void setInput(String input);
+public abstract class WaitUntil extends AsyncTask<Void, Void, Void> {
+	private final int timeToSleep;
 
-	public abstract String getOutput();
+	public WaitUntil(final int timeToSleep) {
+		super();
+		this.timeToSleep = timeToSleep;
+	}
 
-	public abstract String getLog();
+	@Override
+	protected Void doInBackground(Void... params) {
+		while (!until()) {
+			try {
+				Thread.sleep(timeToSleep);
+			} catch (InterruptedException e) {}
+		}
+		return null;
+	}
 
-	public abstract String getGraph();
+	public abstract boolean until();
 
-	public abstract void compute();
-
-	public abstract String getVersionName();
-
-	public abstract int getVersionCode();
-
-	public abstract void initialize();
-
+	@Override
+	protected void onPostExecute(Void output) {}
 }

@@ -32,19 +32,19 @@ import net.freehal.core.util.LogUtils;
 
 import org.apache.http.util.EncodingUtils;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-public class Util {
+public class AndroidUtils {
 
 	private static final String TAG = "Util";
 
-	private static Activity activity;
+	private static ContextWrapper activity;
 	private static Class<?> activityClass;
 
 	public static String toAscii(String str) {
@@ -124,12 +124,12 @@ public class Util {
 		return packageInfo;
 	}
 
-	public static void setActivity(Activity activity, Class<?> activityClass) {
-		Util.activity = activity;
-		Util.activityClass = activityClass;
+	public static void setActivity(ContextWrapper activity, Class<?> activityClass) {
+		AndroidUtils.activity = activity;
+		AndroidUtils.activityClass = activityClass;
 	}
 
-	public static Activity getActivity() {
+	public static android.content.ContextWrapper getActivity() {
 		return activity;
 	}
 
@@ -138,7 +138,7 @@ public class Util {
 	}
 
 	public static String getString(int s) {
-		return Util.getActivity().getResources().getString(s);
+		return AndroidUtils.getActivity().getResources().getString(s);
 	}
 
 	public static SharedPreferences getPreferences() {
@@ -227,7 +227,7 @@ public class Util {
 	}
 
 	public static boolean unpackZip(int zipId, FreehalFile path) {
-		InputStream stream = Util.getActivity().getResources().openRawResource(zipId);
+		InputStream stream = AndroidUtils.getActivity().getResources().openRawResource(zipId);
 		boolean result = unpackZip(stream, path);
 		try {
 			stream.close();

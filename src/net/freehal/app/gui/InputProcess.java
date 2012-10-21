@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
 import java.util.List;
 
-import net.freehal.app.impl.FreehalImpl;
-import net.freehal.app.impl.FreehalImpls;
+import net.freehal.app.R;
+import net.freehal.app.util.FreehalAdapter;
+import net.freehal.app.util.FreehalAdapters;
 import net.freehal.app.util.SpeechHelper;
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.app.util.VoiceRecHelper;
 import android.os.AsyncTask;
 import android.view.KeyEvent;
@@ -34,18 +35,18 @@ public class InputProcess {
 
 		final History history = History.getInstance();
 
-		final String input = Util.toAscii(rawInput);
+		final String input = AndroidUtils.toAscii(rawInput);
 
 		if (input.length() > 0) {
 			final int inputNo = history.addInput(input, "");
 
-			final String noOutput = Util.getActivity().getResources().getString(R.string.no_output);
+			final String noOutput = AndroidUtils.getActivity().getResources().getString(R.string.no_output);
 			AsyncTask<String, Void, String> async = new AsyncTask<String, Void, String>() {
 
 				@Override
 				protected String doInBackground(String... arg0) {
 					System.out.println("input: " + input);
-					final FreehalImpl impl = FreehalImpls.getInstance();
+					final FreehalAdapter impl = FreehalAdapters.getInstance();
 					impl.setInput(input);
 					impl.compute();
 					String output = impl.getOutput();

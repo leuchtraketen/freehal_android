@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
 import net.freehal.app.R;
-import net.freehal.app.select.SelectContent;
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.app.util.VoiceRecHelper;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +36,7 @@ public class DetailActivity extends SherlockFragmentActivity {
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		Util.setActivity(this, DetailActivity.class);
+		AndroidUtils.setActivity(this, DetailActivity.class);
 
 		// if (savedInstanceState == null) {
 		final String id = SelectContent.validateId(getIntent().getStringExtra(DetailFragment.ARG_ITEM_ID));

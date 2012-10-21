@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.core.util.AbstractFreehalFile;
 import net.freehal.core.util.Factory;
 import net.freehal.core.util.FreehalFile;
@@ -31,7 +31,7 @@ public class SqliteFile extends AbstractFreehalFile {
 
 	private void init() {
 		if (helper == null) {
-			helper = new FreehalFileSqliteHelper(Util.getActivity().getApplicationContext());
+			helper = new FreehalFileSqliteHelper(AndroidUtils.getActivity().getApplicationContext());
 		}
 	}
 

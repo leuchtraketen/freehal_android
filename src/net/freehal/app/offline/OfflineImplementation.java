@@ -1,29 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2006 - 2012 Tobias Schulz and Contributors.
- * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
- ******************************************************************************/
-package net.freehal.app.impl;
+package net.freehal.app.offline;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import net.freehal.app.FreehalService;
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.compat.android.AndroidCompatibility;
 import net.freehal.compat.android.AndroidLogUtils;
 import net.freehal.compat.android.SqliteFile;
@@ -84,32 +64,15 @@ import net.freehal.plugin.berkeleydb.BerkeleyFile;
 import net.freehal.plugin.wikipedia.GermanWikipedia;
 import net.freehal.plugin.wikipedia.WikipediaClient;
 import net.freehal.plugin.wikipedia.WikipediaPlugin;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 
-public class FreehalImplOffline extends FreehalImpl {
+public class OfflineImplementation {
 
-	private static FreehalImplOffline instance;
+	private static FreehalFile centralLogFile = null;
+	private static boolean isInitialized = false;
 
-	public static FreehalImpl getInstance() {
-		if (instance == null)
-			instance = new FreehalImplOffline();
-		return instance;
-	}
+	public OfflineImplementation() {}
 
-	FreehalService mService = null;
-	boolean mBound = false;
-
-	private File centralLogFile = null;
-	private boolean isInitialized = false;
-
-	private String input;
-	private String output;
-
-	private FreehalImplOffline() {
+	public static void register() {
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, a Berkeley DB for the berkeley:// protocol and
 		// a real file for all other protocols
@@ -127,16 +90,16 @@ public class FreehalImplOffline extends FreehalImpl {
 
 		// how and where to print the log
 		StandardLogUtils log = new StandardLogUtils();
-		log.to(AndroidLogUtils.AndroidLogStream.create());
+		log.to(AndroidLogUtils.AndroidLogStream.create().addFilter("xml", LogUtils.DEBUG)
+				.addFilter("filter", LogUtils.DEBUG));
 		log.to(StandardLogUtils.FileLogStream
-				.create(centralLogFile = Storages.inPath("stdout.txt").getFile()));
+				.create((centralLogFile = Storages.inPath("stdout.txt")).getFile()));
 		LogUtils.set(log);
 	}
 
-	public synchronized void initialize() {
+	public static synchronized void initialize() {
 		// now, as logging and file system stuff is set up, start the real
 		// initialization process!
-		bind();
 		LogUtils.startProgress("init");
 
 		LogUtils.updateProgress("unpacking internal database files to sdcard...");
@@ -147,7 +110,7 @@ public class FreehalImplOffline extends FreehalImpl {
 		final String currentVersion = versionFile.read();
 		if (currentVersion == null || !thisVersion.equals(currentVersion)) {
 			// unpack the zip file which contains the standard database
-			Util.unpackZip(net.freehal.app.R.raw.database, Storages.getPath());
+			AndroidUtils.unpackZip(net.freehal.app.R.raw.database, Storages.getPath());
 			// write the version file
 			versionFile.write(thisVersion);
 		}
@@ -207,11 +170,17 @@ public class FreehalImplOffline extends FreehalImpl {
 		database.addComponent(synonyms);
 		// set the default key size for the database cache indices
 		DirectoryUtils.Key.setGlobalKeyLength(2);
+		// set the maximum amount of facts to hold in memory
+		FactIndex.setMemoryLimit(1500);
 		// update the cache of that database...
 		// while updating the cache, a cache_xy/ directory will be
 		// filled with
 		// information from the database files in lang_xy/
 		database.updateCache();
+
+		tags.compress();
+		factsCache.compress();
+		meta.compress();
 
 		LogUtils.updateProgress("set up plugins...");
 
@@ -234,39 +203,20 @@ public class FreehalImplOffline extends FreehalImpl {
 
 		// android.os.Debug.stopMethodTracing();
 
-		unbind();
 		LogUtils.stopProgress();
 
 		isInitialized = true;
 	}
 
-	private synchronized void bind() {
-		// Bind to FreehalService
-		Intent intent = new Intent(Util.getActivity().getApplicationContext(), FreehalService.class);
-		Util.getActivity().getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-		while (!mBound)
-			Util.sleep(1000);
+	public static FreehalFile getLogFile() {
+		return centralLogFile;
 	}
 
-	private synchronized void unbind() {
-		// Unbind from FreehalService
-		if (mBound) {
-			Util.getActivity().getApplicationContext().unbindService(mConnection);
-			mBound = false;
-		}
-	}
-
-	@Override
-	public void setInput(String input) {
-		this.input = input;
-	}
-
-	@Override
-	public synchronized void compute() {
+	public static String compute(String input) {
 		if (!isInitialized)
 			initialize();
+	    android.os.Debug.startMethodTracing("answer");
 
-		bind();
 		LogUtils.startProgress("answer");
 		LogUtils.updateProgress("find an answer for \"" + input + "\"");
 
@@ -283,64 +233,16 @@ public class FreehalImplOffline extends FreehalImpl {
 			outputParts.add(AnswerProviders.getAnswer(s));
 		}
 		// put all answers together
-		output = StringUtils.join(" ", outputParts);
+		final String output = StringUtils.join(" ", outputParts);
 		LogUtils.i("Input: " + input);
 		LogUtils.i("Output: " + output);
 
 		LogUtils.stopProgress();
-		unbind();
-	}
-
-	@Override
-	public String getOutput() {
+		android.os.Debug.stopMethodTracing();
+		
 		return output;
 	}
 
-	@Override
-	public String getLog() {
-		if (centralLogFile != null) {
-			try {
-				return new Scanner(centralLogFile).useDelimiter("\\Z").next();
-			} catch (FileNotFoundException e) {
-				LogUtils.e(e);
-				return StringUtils.asString(e);
-			}
-		}
-		return "";
-	}
-
-	@Override
-	public String getGraph() {
-		return null;
-	}
-
-	@Override
-	public String getVersionName() {
-		return "not installed";
-	}
-
-	@Override
-	public int getVersionCode() {
-		return -1;
-	}
-
-	/** Defines callbacks for service binding, passed to bindService() */
-	private ServiceConnection mConnection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			// We've bound to LocalService, cast the IBinder and get
-			// LocalService instance
-			FreehalService.LocalBinder binder = (FreehalService.LocalBinder) service;
-			mService = binder.getService();
-			mBound = true;
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
-		}
-	};
 }
 
 class FakeAnswerProvider implements AnswerProvider {
@@ -351,3 +253,4 @@ class FakeAnswerProvider implements AnswerProvider {
 	}
 
 }
+

@@ -14,30 +14,33 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app.impl;
+package net.freehal.app.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class FreehalImpls {
+import net.freehal.app.offline.OfflineAdapter;
+import net.freehal.app.online.OnlineAdapter;
 
-	private static Map<String, FreehalImpl> impls;
+public class FreehalAdapters {
+
+	private static Map<String, FreehalAdapter> impls;
 	private static String current;
 	static {
-		impls = new HashMap<String, FreehalImpl>();
-		impls.put("offline", FreehalImplOffline.getInstance());
-		impls.put("online", FreehalImplOnline.getInstance());
+		impls = new HashMap<String, FreehalAdapter>();
+		impls.put("offline", OfflineAdapter.getInstance());
+		impls.put("online", OnlineAdapter.getInstance());
 		current = "offline";
 	}
 
-	public static FreehalImpl getInstance(String key) {
+	public static FreehalAdapter getInstance(String key) {
 		if (impls.containsKey(key))
 			return impls.get(key);
 		else
 			return null;
 	}
 
-	public static FreehalImpl getInstance() {
+	public static FreehalAdapter getInstance() {
 		return getInstance(current);
 	}
 
@@ -47,7 +50,7 @@ public class FreehalImpls {
 
 	public static void setCurrent(String current) {
 		if (current.equals("online") || current.equals("offline")) {
-			FreehalImpls.current = current;
+			FreehalAdapters.current = current;
 		}
 	}
 
@@ -55,5 +58,9 @@ public class FreehalImpls {
 	 * This is run at the very beginning of the application to ensure that the
 	 * static variables of this class are initialized...
 	 */
-	public static void initialize() {}
+	public static void initialize() {
+		for (FreehalAdapter adap : impls.values()) {
+			adap.initialize();
+		}
+	}
 }

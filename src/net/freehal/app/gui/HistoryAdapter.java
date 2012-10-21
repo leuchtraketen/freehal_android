@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
+import net.freehal.app.R;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.text.Html;

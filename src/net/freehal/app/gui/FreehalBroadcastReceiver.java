@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
-import net.freehal.app.util.Util;
+import net.freehal.app.notification.NotificationService;
+import net.freehal.app.offline.OfflineService;
+import net.freehal.app.util.AndroidUtils;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,20 +36,24 @@ public class FreehalBroadcastReceiver extends BroadcastReceiver {
 		// sorry)
 		if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
 
-			if (Util.getPreferences(context).getBoolean("startAtBoot", true)) {
-				ComponentName comp = new ComponentName(context.getPackageName(),
-						FreehalService.class.getName());
-				ComponentName service = context.startService(new Intent().setComponent(comp));
-				if (null == service) {
-					// something really wrong here
-					Log.e(TAG, "Could not start service " + comp.toString());
-				}
+			if (AndroidUtils.getPreferences(context).getBoolean("startAtBoot", true)) {
+				startService(context, NotificationService.class);
+				startService(context, OfflineService.class);
 			} else {
 				Log.e(TAG, "I'm not allowed to start the freehal service!!");
 			}
 
 		} else {
 			Log.e(TAG, "Received unexpected intent " + intent.toString());
+		}
+	}
+
+	private void startService(Context context, Class<?> serviceClass) {
+		ComponentName comp = new ComponentName(context.getPackageName(), serviceClass.getName());
+		ComponentName service = context.startService(new Intent().setComponent(comp));
+		if (null == service) {
+			// something really wrong here
+			Log.e(TAG, "Could not start service " + comp.toString());
 		}
 	}
 }

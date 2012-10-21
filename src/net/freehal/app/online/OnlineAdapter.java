@@ -14,22 +14,24 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app.impl;
+package net.freehal.app.online;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Random;
 
 import net.freehal.app.util.ExecuteLater;
+import net.freehal.app.util.FreehalAdapter;
+import net.freehal.app.util.FreehalUser;
 import net.freehal.app.util.HttpUtil;
 
-public class FreehalImplOnline extends FreehalImpl {
+public class OnlineAdapter extends FreehalAdapter {
 
-	private static FreehalImplOnline instance;
+	private static OnlineAdapter instance;
 
-	public static FreehalImpl getInstance() {
+	public static FreehalAdapter getInstance() {
 		if (instance == null)
-			instance = new FreehalImplOnline();
+			instance = new OnlineAdapter();
 		return instance;
 	}
 
@@ -39,7 +41,7 @@ public class FreehalImplOnline extends FreehalImpl {
 	private String graph;
 	private int version;
 
-	private FreehalImplOnline() {
+	private OnlineAdapter() {
 		version = -1;
 	}
 

@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +32,7 @@ public class EditTextKeyboardOpener implements KeyboardOpener {
 	}
 
 	public void showKeyboard() {
-		InputMethodManager inputStatus = (InputMethodManager) Util.getActivity().getSystemService(
+		InputMethodManager inputStatus = (InputMethodManager) AndroidUtils.getActivity().getSystemService(
 				Context.INPUT_METHOD_SERVICE);
 		inputStatus.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
 	}
@@ -51,7 +51,7 @@ public class EditTextKeyboardOpener implements KeyboardOpener {
 		edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus && Util.getActivity() != null) {
+				if (hasFocus && AndroidUtils.getActivity() != null) {
 					showKeyboard();
 				}
 			}

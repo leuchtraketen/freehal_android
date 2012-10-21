@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app.impl;
+package net.freehal.app.util;
 
 import net.freehal.app.R;
-import net.freehal.app.util.Util;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
@@ -47,7 +46,7 @@ public class FreehalUser {
 	}
 
 	public String getEmailAddr(final String or) {
-		return Util.getPreferences().getString("userEmail", findOutEmailAddr(or));
+		return AndroidUtils.getPreferences().getString("userEmail", findOutEmailAddr(or));
 	}
 
 	public String findOutEmailAddr(final String or) {
@@ -69,7 +68,7 @@ public class FreehalUser {
 	}
 
 	public String getUserName(final String or) {
-		return Util.getPreferences().getString("userName", findOutUserName(or));
+		return AndroidUtils.getPreferences().getString("userName", findOutUserName(or));
 	}
 
 	public String findOutUserName(final String or) {
@@ -80,10 +79,10 @@ public class FreehalUser {
 	}
 
 	public String getFreehalName() {
-		return Util.getPreferences().getString("freehalName", findOutFreehalName());
+		return AndroidUtils.getPreferences().getString("freehalName", findOutFreehalName());
 	}
 
 	public String findOutFreehalName() {
-		return Util.getString(R.string.person_freehal);
+		return AndroidUtils.getString(R.string.person_freehal);
 	}
 }

@@ -14,12 +14,13 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
 import java.util.ArrayList;
 
-import net.freehal.app.impl.FreehalUser;
-import net.freehal.app.util.Util;
+import net.freehal.app.R;
+import net.freehal.app.util.FreehalUser;
+import net.freehal.app.util.AndroidUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,7 +49,7 @@ public class FreehalPreferences extends SherlockPreferenceActivity implements On
 
 		addPreferencesFromResource(R.xml.preferences);
 
-		SharedPreferences prefs = Util.getPreferences();
+		SharedPreferences prefs = AndroidUtils.getPreferences();
 		prefs.registerOnSharedPreferenceChangeListener(this);
 		for (String prefKey : prefs.getAll().keySet()) {
 			Preference pref = (Preference) findPreference(prefKey);
@@ -62,7 +63,7 @@ public class FreehalPreferences extends SherlockPreferenceActivity implements On
 	}
 
 	private void reset(boolean doReset) {
-		SharedPreferences prefs = Util.getPreferences();
+		SharedPreferences prefs = AndroidUtils.getPreferences();
 		SharedPreferences.Editor editor = prefs.edit();
 
 		if (doReset || prefs.getString("userName", "").length() == 0)

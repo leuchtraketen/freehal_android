@@ -14,9 +14,24 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.util;
 
-public interface KeyboardOpener {
+public abstract class FreehalAdapter {
 
-	public void onShowKeyboard();
+	public abstract void setInput(String input);
+
+	public abstract String getOutput();
+
+	public abstract String getLog();
+
+	public abstract String getGraph();
+
+	public abstract void compute();
+
+	public abstract String getVersionName();
+
+	public abstract int getVersionCode();
+
+	public abstract void initialize();
+
 }

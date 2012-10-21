@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.gui;
 
-import net.freehal.app.impl.FreehalImpls;
-import net.freehal.app.impl.FreehalUser;
-import net.freehal.app.select.SelectContent;
+import net.freehal.app.R;
+import net.freehal.app.notification.NotificationService;
+import net.freehal.app.util.FreehalAdapters;
+import net.freehal.app.util.FreehalUser;
 import net.freehal.app.util.SpeechHelper;
-import net.freehal.app.util.Util;
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.app.util.VoiceRecHelper;
 import android.content.Context;
 import android.content.Intent;
@@ -43,9 +44,9 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_list);
 
-		Util.setActivity(this, OverviewActivity.class);
+		AndroidUtils.setActivity(this, OverviewActivity.class);
 		FreehalUser.init(this.getApplicationContext());
-		FreehalImpls.initialize();
+		FreehalAdapters.initialize();
 		SpeechHelper.getInstance().start();
 
 		if (findViewById(R.id.detail_container) != null) {
@@ -61,7 +62,7 @@ public class OverviewActivity extends SherlockFragmentActivity implements Overvi
 		String action = intent.getAction();
 		String type = intent.getType();
 		
-		this.startService(new Intent(this, FreehalService.class));
+		this.startService(new Intent(this, NotificationService.class));
 
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
 			if ("text/plain".equals(type)) {

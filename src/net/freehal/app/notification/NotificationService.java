@@ -14,28 +14,45 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
  ******************************************************************************/
-package net.freehal.app;
+package net.freehal.app.notification;
 
+import net.freehal.app.R;
+import net.freehal.app.gui.OverviewActivity;
+import net.freehal.app.offline.OfflineImplementation;
+import net.freehal.app.offline.OfflineService;
+import net.freehal.app.util.AndroidUtils;
+import net.freehal.app.util.FreehalUser;
 import net.freehal.core.util.LogUtils;
-import net.freehal.core.util.LogUtils.ProgressListener;
-
-import com.jakewharton.notificationcompat2.NotificationCompat2;
-
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
+import android.widget.Toast;
 
-public class FreehalService extends Service {
+import com.jakewharton.notificationcompat2.NotificationCompat2;
 
-	final static String TAG = "FreehalService";
+public class NotificationService extends Service {
+
+	final static String TAG = "NotificationService";
+
+	public static final int MSG_CREATE = 1;
+	public static final int MSG_DESTROY = 2;
+	public static final int MSG_UPDATE = 3;
+	public static final String DATA_PROGRESS = "current";
+	public static final String DATA_MAX = "max";
+	public static final String DATA_TEXT = "text";
+
 	private NotificationManager mNotifyManager = null;
 	private NotificationCompat2.Builder mBuilder = null;
-	// Binder given to clients
-	private final IBinder mBinder = new LocalBinder();
+
+	final Messenger mMessenger = new Messenger(new IncomingHandler());
 
 	private int generation = -1;
 	private double max = 1;
@@ -47,7 +64,11 @@ public class FreehalService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.i(TAG, "debug: Creating service");
+		Log.i(TAG, "creating service");
+		AndroidUtils.setActivity(this, OfflineService.class);
+		FreehalUser.init(this.getApplicationContext());
+		OfflineImplementation.register();
+		Log.i(TAG, "created service");
 
 		idleText = this.getResources().getString(R.string.notification_idle);
 
@@ -56,31 +77,6 @@ public class FreehalService extends Service {
 		mBuilder.setContentTitle("FreeHAL").setContentText(idleText).setSmallIcon(R.drawable.ic_launcher);
 		mBuilder.setContentIntent(getPendingIntent());
 		mBuilder.setOngoing(true);
-
-		LogUtils.addProgressListener(new ProgressListener() {
-
-			@Override
-			public void onProgressUpdate(double current, double max, String text) {
-				updateProgress(current, max, text);
-			}
-
-			@Override
-			public void onProgressBeginning() {
-				create();
-			}
-
-			@Override
-			public void onProgressEnd() {
-				Log.e("FreehalService", "destroy()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				destroy();
-			}
-
-			@Override
-			public void onSubProgressBeginning() {}
-
-			@Override
-			public void onSubProgressEnd() {}
-		});
 	}
 
 	@Override
@@ -109,13 +105,13 @@ public class FreehalService extends Service {
 						LogUtils.i("progress=" + progress + ", text=" + text + " (" + progressToPrint + "%)");
 					} else
 						LogUtils.i("progress=" + progress + ", text=" + text);
-					mBuilder.setNumber(n++);
+					mBuilder.setNumber(n += 2);
 
 					// inform the progress bar of updates in progress
 					mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
 
 					try {
-						Thread.sleep(3000);
+						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -153,14 +149,39 @@ public class FreehalService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return mBinder;
+		Toast.makeText(getApplicationContext(), "binding to "+TAG, Toast.LENGTH_SHORT).show();
+		return mMessenger.getBinder();
 	}
 
-	public class LocalBinder extends Binder {
-		public FreehalService getService() {
-			// Return this instance of LocalService so clients can call public
-			// methods
-			return FreehalService.this;
+	/**
+	 * Handler of incoming messages from clients.
+	 */
+	@SuppressLint("HandlerLeak")
+	class IncomingHandler extends Handler {
+		@Override
+		public void handleMessage(final Message msg) {
+			switch (msg.what) {
+			case MSG_CREATE:
+				create();
+				break;
+			case MSG_DESTROY:
+				destroy();
+				break;
+			case MSG_UPDATE:
+				final Bundle data = msg.getData();
+				if (data.containsKey(DATA_PROGRESS) || data.containsKey(DATA_TEXT)) {
+					final double current = data.getDouble(DATA_PROGRESS, -1);
+					final double max = data.getDouble(DATA_MAX, -1);
+					final String text = data.getString(DATA_TEXT);
+					updateProgress(current, max, text);
+				} else {
+					LogUtils.e("INVALID bundle: " + data + " in message: " + msg
+							+ " (should contain current,max,text values!)");
+				}
+				break;
+			default:
+				super.handleMessage(msg);
+			}
 		}
 	}
 }
