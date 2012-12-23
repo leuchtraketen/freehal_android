@@ -90,10 +90,10 @@ public class OfflineImplementation {
 
 		// how and where to print the log
 		StandardLogUtils log = new StandardLogUtils();
-		log.to(AndroidLogUtils.AndroidLogStream.create().addFilter("xml", LogUtils.DEBUG)
-				.addFilter("filter", LogUtils.DEBUG));
-		log.to(StandardLogUtils.FileLogStream
-				.create((centralLogFile = Storages.inPath("stdout.txt")).getFile()));
+		log.to(AndroidLogUtils.AndroidLogStream.create());
+		// .addFilter("xml", LogUtils.DEBUG).addFilter("filter", LogUtils.DEBUG)
+		log.to(StandardLogUtils.FileLogStream.create((centralLogFile = Storages.inPath("stdout.txt"))
+				.getFile()));
 		LogUtils.set(log);
 	}
 
@@ -215,7 +215,7 @@ public class OfflineImplementation {
 	public static String compute(String input) {
 		if (!isInitialized)
 			initialize();
-	    android.os.Debug.startMethodTracing("answer");
+		android.os.Debug.startMethodTracing("answer");
 
 		LogUtils.startProgress("answer");
 		LogUtils.updateProgress("find an answer for \"" + input + "\"");
@@ -239,7 +239,7 @@ public class OfflineImplementation {
 
 		LogUtils.stopProgress();
 		android.os.Debug.stopMethodTracing();
-		
+
 		return output;
 	}
 
@@ -253,4 +253,3 @@ class FakeAnswerProvider implements AnswerProvider {
 	}
 
 }
-
