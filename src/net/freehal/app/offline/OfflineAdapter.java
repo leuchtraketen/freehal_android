@@ -16,9 +16,9 @@
  ******************************************************************************/
 package net.freehal.app.offline;
 
+import net.freehal.app.util.AndroidUtils;
 import net.freehal.app.util.BinderUtility;
 import net.freehal.app.util.FreehalAdapter;
-import net.freehal.app.util.AndroidUtils;
 import net.freehal.core.util.LogUtils;
 import net.freehal.core.util.StringUtils;
 import android.annotation.SuppressLint;
@@ -29,7 +29,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 
 public class OfflineAdapter extends FreehalAdapter {
 

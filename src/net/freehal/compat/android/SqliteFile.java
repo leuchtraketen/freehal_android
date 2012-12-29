@@ -135,4 +135,9 @@ public class SqliteFile extends AbstractFreehalFile {
 		}
 		return countOfLines;
 	}
+
+	@Override
+	public void touch() {
+		append("");
+	}
 }
