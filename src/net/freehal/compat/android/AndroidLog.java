@@ -16,12 +16,12 @@
  ******************************************************************************/
 package net.freehal.compat.android;
 
-import net.freehal.core.logs.receiver.LogReceiver;
-import net.freehal.core.logs.receiver.StackTraceUtils;
+import net.freehal.core.logs.listener.LogDestination;
+import net.freehal.core.logs.listener.StackTraceUtils;
 import net.freehal.core.util.RegexUtils;
 import android.util.Log;
 
-public class AndroidLog implements LogReceiver {
+public class AndroidLog implements LogDestination {
 	
 	@Override
 	public void addLine(String type, String msg, StackTraceElement ste) {

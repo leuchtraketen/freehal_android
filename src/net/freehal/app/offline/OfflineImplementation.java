@@ -34,7 +34,6 @@ import net.freehal.core.lang.fake.FakeLanguage;
 import net.freehal.core.lang.german.GermanLanguage;
 import net.freehal.core.logs.StandardLogUtils;
 import net.freehal.core.logs.output.FileLog;
-import net.freehal.core.logs.receiver.UncoloredLog;
 import net.freehal.core.parser.Parser;
 import net.freehal.core.parser.Sentence;
 import net.freehal.core.pos.Tagger;
@@ -84,12 +83,12 @@ public class OfflineImplementation {
 
 		// all messages are written into a log file
 		if (logfile != null) {
-			log.to(new UncoloredLog(new FileLog(logfile)));
+			log.addDestination(new net.freehal.core.logs.listener.UncoloredLog(new FileLog(logfile)));
 		}
 
 		// all messages are written to the android system log
 		if (logfile != null) {
-			log.to(new AndroidLog());
+			log.addDestination(new AndroidLog());
 		}
 	}
 

@@ -32,6 +32,9 @@ public class FreehalUser {
 	public static void init(final Context context) {
 		if (user == null)
 			user = new FreehalUser(context);
+
+		net.freehal.core.util.SystemUtils.setUsername(user.getUserName(null));
+		net.freehal.core.util.SystemUtils.setEmailAddr(user.getEmailAddr(null));
 	}
 
 	public static FreehalUser get() {
