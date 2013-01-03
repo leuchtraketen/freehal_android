@@ -22,8 +22,9 @@ import java.util.Collection;
 
 import net.freehal.app.util.AndroidUtils;
 import net.freehal.core.util.AbstractFreehalFile;
-import net.freehal.core.util.Factory;
 import net.freehal.core.util.FreehalFile;
+import net.freehal.core.util.FreehalFileImpl;
+import net.freehal.core.util.FreehalFiles;
 
 public class SqliteFile extends AbstractFreehalFile {
 
@@ -39,10 +40,10 @@ public class SqliteFile extends AbstractFreehalFile {
 		super(file);
 	}
 
-	public static Factory<FreehalFile, String> newFactory() {
-		return new Factory<FreehalFile, String>() {
+	public static FreehalFiles.Factory newFactory() {
+		return new FreehalFiles.Factory() {
 			@Override
-			public FreehalFile newInstance(String b) {
+			public FreehalFileImpl newInstance(String b) {
 				return new SqliteFile(new File(b));
 			}
 		};
@@ -50,12 +51,12 @@ public class SqliteFile extends AbstractFreehalFile {
 
 	@Override
 	public FreehalFile getChild(String file) {
-		return new SqliteFile(new File(this.getAbsolutePath(), file));
+		return new FreehalFile(new SqliteFile(new File(this.getAbsolutePath(), file)));
 	}
 
 	@Override
-	public FreehalFile getChild(FreehalFile file) {
-		return new SqliteFile(new File(this.getAbsolutePath(), file.getPath()));
+	public FreehalFile getChild(FreehalFileImpl file) {
+		return new FreehalFile(new SqliteFile(new File(this.getAbsolutePath(), file.getPath())));
 	}
 
 	@Override

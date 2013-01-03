@@ -62,11 +62,14 @@ public class SqliteTagTable extends MemoryTagContainer implements TagContainer {
 		return result;
 	}
 
-	public static Factory<TagContainer, String> newFactory() {
-		return new Factory<TagContainer, String>() {
+	public static Factory<TagContainer> newFactory() {
+		return new Factory<TagContainer>() {
 			@Override
-			public TagContainer newInstance(String b) {
-				return new SqliteTagTable(b);
+			public TagContainer newInstance(String... b) {
+				if (b.length >= 1)
+					return new SqliteTagTable(b[0]);
+				else
+					return null;
 			}
 		};
 	}

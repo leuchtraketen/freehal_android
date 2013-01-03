@@ -23,7 +23,6 @@ import net.freehal.core.lang.Language;
 import net.freehal.core.lang.english.EnglishLanguage;
 import net.freehal.core.lang.german.GermanLanguage;
 import net.freehal.core.util.FreehalFile;
-import net.freehal.core.util.FreehalFiles;
 import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
@@ -46,12 +45,12 @@ public class AndroidCompatibility {
 	public static FreehalFile getPath() {
 		FreehalFile path;
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			path = FreehalFiles.getFile(Environment.getExternalStorageDirectory().getPath());
+			path = new FreehalFile(Environment.getExternalStorageDirectory().getPath());
 			path.mkdirs();
 		} else {
-			Toast.makeText(AndroidUtils.getActivity().getApplicationContext(), "No SD card found!", Toast.LENGTH_LONG)
-					.show();
-			path = FreehalFiles.getFile(AndroidUtils.getActivity().getApplicationContext().getCacheDir().getPath());
+			Toast.makeText(AndroidUtils.getActivity().getApplicationContext(), "No SD card found!",
+					Toast.LENGTH_LONG).show();
+			path = new FreehalFile(AndroidUtils.getActivity().getApplicationContext().getCacheDir().getPath());
 			path.mkdirs();
 		}
 		path = path.getChild("freehal");

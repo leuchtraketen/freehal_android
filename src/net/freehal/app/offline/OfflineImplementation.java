@@ -96,11 +96,11 @@ public class OfflineImplementation {
 		// file access: use the android sqlite API for all files with
 		// "sqlite://" protocol, a Berkeley DB for the berkeley:// protocol and
 		// a real file for all other protocols
-		FreehalFiles.add(FreehalFiles.ALL_PROTOCOLS, StandardFreehalFile.newFactory());
-		FreehalFiles.add("sqlite", SqliteFile.newFactory());
-		FreehalFiles.add("http", StandardHttpClient.newFactory());
-		FreehalFiles.add("wikipedia", WikipediaClient.newFactory());
-		FreehalFiles.add("berkeley", BerkeleyFile.newFactory());
+		FreehalFiles.addImplementation(FreehalFiles.ALL_PROTOCOLS, StandardFreehalFile.newFactory());
+		FreehalFiles.addImplementation("sqlite", SqliteFile.newFactory());
+		FreehalFiles.addImplementation("http", StandardHttpClient.newFactory());
+		FreehalFiles.addImplementation("wikipedia", WikipediaClient.newFactory());
+		FreehalFiles.addImplementation("berkeley", BerkeleyFile.newFactory());
 
 		// initialize the directory structure. The "StandardStorage"
 		// implementation expects a "lang_xy" directory there which contains the
@@ -126,8 +126,8 @@ public class OfflineImplementation {
 
 		// initialize the grammar
 		// (also possible: EnglishGrammar, GermanGrammar, FakeGrammar)
-		Grammar grammar = LanguageSpecific.chooseByLanguage(Grammar.class);
-		grammar.readGrammar(FreehalFiles.getFile("grammar.txt"));
+		Grammar grammar = LanguageSpecific.chooseByCurrentLanguage(Grammar.class);
+		grammar.readGrammar(new FreehalFile("grammar.txt"));
 		Grammars.setGrammar(grammar);
 
 		LogUtils.startProgress("set up part of speech tagger");
@@ -142,21 +142,21 @@ public class OfflineImplementation {
 		// usage) or a TaggerCacheDisk (slower, less memory usage)
 		KeyValueDatabase<Tags> tags = new BerkeleyDb<Tags>(Storages.getCacheDirectory().getChild("tagger"),
 				new Tags.StringSerializer());
-		Tagger tagger = LanguageSpecific.chooseByLanguage(Tagger.class);
+		Tagger tagger = LanguageSpecific.chooseByCurrentLanguage(Tagger.class);
 		tagger.setDatabase(TagDatabase.newFactory(tags, meta));
 		// Tagger tagger = new GermanTagger(MemoryTagMap.newFactory());
-		tagger.readTagsFrom(FreehalFiles.getFile("guessed.pos"));
-		tagger.readTagsFrom(FreehalFiles.getFile("brain.pos"));
-		tagger.readTagsFrom(FreehalFiles.getFile("memory.pos"));
-		tagger.readRegexFrom(FreehalFiles.getFile("regex.pos"));
-		tagger.readToggleWordsFrom(FreehalFiles.getFile("toggle.csv"));
+		tagger.readTagsFrom(new FreehalFile("guessed.pos"));
+		tagger.readTagsFrom(new FreehalFile("brain.pos"));
+		tagger.readTagsFrom(new FreehalFile("memory.pos"));
+		tagger.readRegexFrom(new FreehalFile("regex.pos"));
+		tagger.readToggleWordsFrom(new FreehalFile("toggle.csv"));
 		Taggers.setTagger(tagger);
 
 		LogUtils.stopProgress();
 
 		// how to phrase the output sentences
 		// (also possible: EnglishWording, GermanWording, FakeWording)
-		Wording phrase = LanguageSpecific.chooseByLanguage(Wording.class);
+		Wording phrase = LanguageSpecific.chooseByCurrentLanguage(Wording.class);
 		Wordings.setWording(phrase);
 
 		LogUtils.startProgress("set up database");
@@ -196,10 +196,10 @@ public class OfflineImplementation {
 		FactProviders.addFactProvider(wikipedia);
 
 		// Freehal has different ways to find an answer for an input
-		AnswerProviders.add(LanguageSpecific.chooseByLanguage(PredefinedAnswerProvider.class));
+		AnswerProviders.add(LanguageSpecific.chooseByCurrentLanguage(PredefinedAnswerProvider.class));
 		AnswerProviders.add(new DatabaseAnswerProvider(facts));
 		AnswerProviders.add(wikipedia);
-		AnswerProviders.add(LanguageSpecific.chooseByLanguage(RandomAnswerProvider.class));
+		AnswerProviders.add(LanguageSpecific.chooseByCurrentLanguage(RandomAnswerProvider.class));
 		AnswerProviders.add(new FakeAnswerProvider());
 
 		// fact filters are used to filter the best-matching fact in the
@@ -248,7 +248,7 @@ public class OfflineImplementation {
 		LogUtils.updateProgress("find an answer for \"" + input + "\"");
 
 		// also possible: EnglishParser, GermanParser, FakeParser
-		Parser p = LanguageSpecific.chooseByLanguage(Parser.class);
+		Parser p = LanguageSpecific.chooseByCurrentLanguage(Parser.class);
 		p.parse(input);
 
 		// parse the input and get a list of sentences

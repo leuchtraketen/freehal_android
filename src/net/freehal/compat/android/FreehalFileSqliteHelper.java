@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.freehal.core.util.FreehalFile;
-import net.freehal.core.util.FreehalFiles;
+import net.freehal.core.util.FreehalFileImpl;
 import net.freehal.core.util.LogUtils;
 import android.content.ContentValues;
 import android.content.Context;
@@ -60,7 +60,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 			this.db = this.getWritableDatabase();
 	}
 
-	public boolean isFile(FreehalFile filename) {
+	public boolean isFile(FreehalFileImpl filename) {
 		LogUtils.i("isFile: " + filename);
 
 		try {
@@ -81,7 +81,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean isDirectory(FreehalFile filename) {
+	public boolean isDirectory(FreehalFileImpl filename) {
 		LogUtils.i("isDirectory: " + filename);
 
 		String path = filename.getAbsolutePath();
@@ -104,7 +104,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public String read(FreehalFile filename) {
+	public String read(FreehalFileImpl filename) {
 		LogUtils.i("read: " + filename);
 
 		try {
@@ -129,7 +129,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void write(final FreehalFile filename, final String content) {
+	public void write(final FreehalFileImpl filename, final String content) {
 		LogUtils.i("write: " + filename);
 		/*
 		 * Util.getActivity().runOnUiThread(new Runnable() {
@@ -146,7 +146,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public void append(FreehalFile filename, final String content) {
+	public void append(FreehalFileImpl filename, final String content) {
 		LogUtils.i("append: " + filename);
 
 		try {
@@ -163,7 +163,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean delete(FreehalFile filename) {
+	public boolean delete(FreehalFileImpl filename) {
 		LogUtils.i("delete: " + filename);
 
 		try {
@@ -181,7 +181,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public Collection<FreehalFile> listFiles(FreehalFile filename) {
+	public Collection<FreehalFile> listFiles(FreehalFileImpl filename) {
 		LogUtils.i("listFiles: " + filename);
 
 		String path = filename.getAbsolutePath();
@@ -196,7 +196,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 
 			if (cursor.moveToFirst()) {
 				do {
-					files.add(FreehalFiles.getFile(cursor.getString(0)));
+					files.add(new FreehalFile(cursor.getString(0)));
 				} while (cursor.moveToNext());
 			}
 
@@ -206,7 +206,7 @@ public class FreehalFileSqliteHelper extends SQLiteOpenHelper {
 		return files;
 	}
 
-	public long length(FreehalFile filename) {
+	public long length(FreehalFileImpl filename) {
 		LogUtils.i("length: " + filename);
 
 		try {
